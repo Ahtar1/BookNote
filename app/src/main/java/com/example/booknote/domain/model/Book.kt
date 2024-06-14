@@ -3,7 +3,6 @@ package com.example.booknote.domain.model
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import java.util.Date
 
 @Entity(tableName = "books")
 data class Book(

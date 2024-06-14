@@ -6,8 +6,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.booknote.domain.model.Book
-import com.example.booknote.domain.model.Note
-import com.example.booknote.domain.model.relation.BookWithNotes
 import kotlinx.coroutines.flow.Flow
 
 

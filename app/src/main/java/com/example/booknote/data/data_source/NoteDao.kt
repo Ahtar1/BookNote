@@ -1,7 +1,6 @@
 package com.example.booknote.data.data_source
 
 import androidx.room.*
-import com.example.booknote.domain.model.Book
 import com.example.booknote.domain.model.Note
 import kotlinx.coroutines.flow.Flow
 
