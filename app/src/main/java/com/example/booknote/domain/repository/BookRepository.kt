@@ -8,5 +8,5 @@ interface BookRepository {
     suspend fun insertBook(book: Book)
     suspend fun getBookById(id: Long): Book
     suspend fun getBooksBySearchQuery(searchQuery: String): Flow<List<Book>>
-    suspend fun deleteBook(book: Book)
+    suspend fun deleteBook(books: List<Book>)
 }

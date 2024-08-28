@@ -20,8 +20,7 @@ class BookRepositoryImpl(
         return dao.getBooksBySearchQuery(searchQuery)
     }
 
-    override suspend fun deleteBook(book: Book) {
-        dao.deleteBook(book)
+    override suspend fun deleteBook(books: List<Book>) {
+        dao.deleteBook(books)
     }
-
 }

@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.booknote.domain.model.Book
 import com.example.booknote.domain.use_case.BookUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -21,14 +20,13 @@ class BooksViewModel @Inject constructor(
     private val _state = mutableStateOf(BooksState())
     var state: State<BooksState> = _state
 
-    private var recentlyDeletedBook: Book? = null
 
     var isDialogShown by mutableStateOf(false)
         private set
 
-    fun onDismissDialog(){
-        isDialogShown = false
-    }
+    var isBottomSheetShown by mutableStateOf(false)
+        private set
+
 
     init {
         viewModelScope.launch {
@@ -45,8 +43,7 @@ class BooksViewModel @Inject constructor(
         when(event){
             is BooksEvent.DeleteBook -> {
                 viewModelScope.launch {
-                    bookUseCases.deleteBook(event.book)
-                    recentlyDeletedBook = event.book
+                    bookUseCases.deleteBooks(event.books)
                 }
             }
             is BooksEvent.GetBooks -> {
@@ -60,17 +57,14 @@ class BooksViewModel @Inject constructor(
                     }
                 }
             }
-            is BooksEvent.RestoreBook -> {
-                viewModelScope.launch {
-                    bookUseCases.addBook(recentlyDeletedBook ?: return@launch)
-                    recentlyDeletedBook = null
-                }
-            }
-
             is BooksEvent.AddBook -> {
                 viewModelScope.launch {
                     bookUseCases.addBook(event.book)
                 }
+            }
+
+            is BooksEvent.OrderButtonClicked -> {
+                isBottomSheetShown = true
             }
 
             is BooksEvent.AddBookButtonClicked -> {
@@ -79,6 +73,16 @@ class BooksViewModel @Inject constructor(
 
             is BooksEvent.DismissDialog -> {
                 isDialogShown = false
+            }
+
+            is BooksEvent.ChangeOrder -> {
+                _state.value = _state.value.copy(
+                    order = event.order
+                )
+            }
+
+            is BooksEvent.DismissBottomSheet -> {
+                isBottomSheetShown = false
             }
         }
     }

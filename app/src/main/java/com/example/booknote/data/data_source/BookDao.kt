@@ -21,5 +21,5 @@ interface BookDao {
     fun getBooksBySearchQuery(searchQuery: String): Flow<List<Book>>
 
     @Delete
-    suspend fun deleteBook(book: Book)
+    suspend fun deleteBook(books: List<Book>)
 }
