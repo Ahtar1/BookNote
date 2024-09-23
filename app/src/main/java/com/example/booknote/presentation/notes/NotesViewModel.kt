@@ -98,19 +98,8 @@ class NotesViewModel @Inject constructor(
         }
     }
 
-    fun findFilesByBookId(context: Context, bookId: Int): List<File> {
-        val externalDir = context.getExternalFilesDir(null)
-        val files = mutableListOf<File>()
+    private fun findFilesByBookId(context: Context, bookId: Int): List<File> {
         return listOf(File(context.getExternalFilesDir(null), "audio_${bookId}_aaa.mp3"))
-        /*
-        externalDir?.listFiles()?.forEach { file ->
-            if (file.name.contains("audio_${bookId}_") && file.name.endsWith(".mp3")) {
-                files.add(file)
-            }
-        }
-        return files
-
-         */
     }
 
 }
