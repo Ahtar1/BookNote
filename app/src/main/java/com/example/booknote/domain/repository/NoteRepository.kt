@@ -10,5 +10,5 @@ interface NoteRepository {
     suspend fun updateNote(note: Note)
     suspend fun getNotesOfABook(bookId: Long, searchQuery: String, notesSortOrder: NotesSortOrder): Flow<List<Note>>
     suspend fun getNoteById(noteId: Long): Note
-    suspend fun deleteNotes(note: List<Note>)
+    suspend fun deleteNotes(notes: List<Note>)
 }

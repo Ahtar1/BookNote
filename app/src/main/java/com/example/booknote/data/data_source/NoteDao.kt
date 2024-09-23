@@ -10,9 +10,31 @@ interface NoteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNote(note: Note)
 
-    @Query("SELECT * FROM notes WHERE bookId = :bookId AND noteText LIKE '%' || :searchQuery || '%'")
-    fun getNotesOfABook(bookId: Long, searchQuery: String): Flow<List<Note>>
+    @Update
+    suspend fun updateNote(note: Note)
 
+    @Query("""
+    SELECT * FROM notes 
+    WHERE bookId = :bookId 
+    AND (noteText LIKE '%' || :searchQuery || '%' OR noteTitle LIKE '%' || :searchQuery || '%')
+    ORDER BY 
+    CASE 
+        WHEN :sortOrder = 'noteTitleAsc' THEN noteTitle COLLATE NOCASE END ASC,
+        CASE 
+        WHEN :sortOrder = 'noteTitleDesc' THEN noteTitle COLLATE NOCASE END DESC,
+        CASE 
+        WHEN :sortOrder = 'pageAsc' THEN page END ASC,
+        CASE 
+        WHEN :sortOrder = 'pageDesc' THEN page END DESC,
+        CASE 
+        WHEN :sortOrder = 'dateCreatedAsc' THEN dateCreated END ASC,
+        CASE 
+        WHEN :sortOrder = 'dateCreatedDesc' THEN dateCreated END DESC
+""")
+    fun getNotesOfABook(bookId: Long, searchQuery: String, sortOrder: String): Flow<List<Note>>
+
+    @Query("SELECT * FROM notes WHERE id = :noteId")
+    suspend fun getNoteById(noteId: Long): Note
     @Delete
-    suspend fun deleteNote(note: Note)
+    suspend fun deleteNote(note: List<Note>)
 }
