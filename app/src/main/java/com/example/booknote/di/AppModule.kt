@@ -11,11 +11,13 @@ import com.example.booknote.domain.use_case.AddBook
 import com.example.booknote.domain.use_case.AddNote
 import com.example.booknote.domain.use_case.BookUseCases
 import com.example.booknote.domain.use_case.DeleteBook
-import com.example.booknote.domain.use_case.DeleteNote
+import com.example.booknote.domain.use_case.DeleteNotes
 import com.example.booknote.domain.use_case.GetBookById
 import com.example.booknote.domain.use_case.GetBooks
+import com.example.booknote.domain.use_case.GetNote
 import com.example.booknote.domain.use_case.GetNotes
 import com.example.booknote.domain.use_case.NoteUseCases
+import com.example.booknote.domain.use_case.UpdateNote
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -54,7 +56,9 @@ object AppModule {
         return NoteUseCases(
             getNotes = GetNotes(repository),
             addNote = AddNote(repository),
-            deleteNote = DeleteNote(repository)
+            updateNote = UpdateNote(repository),
+            deleteNotes = DeleteNotes(repository),
+            getNote = GetNote(repository),
         )
     }
     @Provides
@@ -63,7 +67,7 @@ object AppModule {
         return BookUseCases(
             getBooks = GetBooks(repository),
             addBook = AddBook(repository),
-            deleteBook = DeleteBook(repository),
+            deleteBooks = DeleteBook(repository),
             getBookById = GetBookById(repository)
         )
     }
