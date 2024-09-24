@@ -68,7 +68,6 @@ fun AddNotePage(
     val scrollState = rememberScrollState()
     var textFieldValue by remember { mutableStateOf(TextFieldValue()) }
 
-    var content by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
     var pageNumber by remember { mutableStateOf("") }
 
@@ -93,7 +92,7 @@ fun AddNotePage(
                                 Note(
                                     id = noteId ?: 0,
                                     noteTitle = title,
-                                    noteText = content,
+                                    noteText = textFieldValue.text,
                                     page = pageNumber.toIntOrNull() ?: 0,
                                     dateCreated = LocalDateTime.now().format(
                                         DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
@@ -120,7 +119,7 @@ fun AddNotePage(
 
         LaunchedEffect(state.note) {
             if (noteId != null) {
-                content = state.note.noteText.orEmpty()
+                textFieldValue = textFieldValue.copy(text = state.note.noteText.toString())
                 title = state.note.noteTitle
                 pageNumber = state.note.page.toString()
             }
