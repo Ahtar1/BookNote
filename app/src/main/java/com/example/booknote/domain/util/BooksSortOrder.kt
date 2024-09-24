@@ -1,6 +1,6 @@
 package com.example.booknote.domain.util
 
-sealed class BooksSortOrder {
+sealed class BooksSortOrder: SortOrder {
     data object BookTitleAsc : BooksSortOrder()
     data object BookTitleDesc : BooksSortOrder()
     data object AuthorAsc : BooksSortOrder()

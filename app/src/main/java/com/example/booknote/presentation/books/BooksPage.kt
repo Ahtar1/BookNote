@@ -4,10 +4,12 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -46,7 +48,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.booknote.R
 import com.example.booknote.domain.model.Book
-import com.example.booknote.domain.util.NotesSortOrder
+import com.example.booknote.domain.util.BooksSortOrder
 import com.example.booknote.presentation.books.components.AddBookDialog
 import com.example.booknote.presentation.notes.components.SortBottomSheet
 import com.example.booknote.presentation.notes.components.ToggleItem
@@ -69,6 +71,8 @@ fun BooksPage(
     var searchJob by remember { mutableStateOf<Job?>(null) }
     var selectionMode by remember { mutableStateOf(false) }
     var selectedBooks by remember { mutableStateOf(listOf<Book>()) }
+
+    var selectedBottomSheetItem by remember { mutableStateOf<ToggleItem?>(ToggleItem(1, "Book Title Ascending", BooksSortOrder.BookTitleAsc),) }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -104,15 +108,19 @@ fun BooksPage(
         },
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp),
+            modifier = Modifier.padding(paddingValues),
         ) {
             var query by remember { mutableStateOf("") }
             var active by remember { mutableStateOf(false) }
-            Row {
+            Row(
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 SearchBar(
-                    modifier = Modifier,
+                    modifier = Modifier.fillMaxWidth(0.9f),
                     query = query,
                     onQueryChange = {
                         active = true
@@ -120,12 +128,12 @@ fun BooksPage(
                         searchJob?.cancel()
                         searchJob = scope.launch {
                             delay(500)
-                            viewModel.onEvent(BooksEvent.GetBooks(query))
+                            viewModel.onEvent(BooksEvent.GetBooks(query, state.order))
                         }
                     },
                     onSearch = { newQuery ->
                         active = false
-                        viewModel.onEvent(BooksEvent.GetBooks(newQuery))
+                        viewModel.onEvent(BooksEvent.GetBooks(newQuery, state.order))
                     },
                     active = false,
                     onActiveChange = { active = it },
@@ -143,7 +151,7 @@ fun BooksPage(
                                         if (query.isNotEmpty()) {
                                             query = ""
                                             active = false
-                                            viewModel.onEvent(BooksEvent.GetBooks(query))
+                                            viewModel.onEvent(BooksEvent.GetBooks(query, state.order))
                                         } else{
                                             active = false
                                         }
@@ -181,13 +189,11 @@ fun BooksPage(
                                         onLongPress = {
                                             selectionMode = true
                                             if (selectedBooks.contains(book)) {
-                                                // Kitap seçiliyse, seçimi kaldır
                                                 selectedBooks = selectedBooks - book
                                                 if (selectedBooks.isEmpty()) {
                                                     selectionMode = false
                                                 }
                                             } else {
-                                                // Kitap seçili değilse, seçimi ekle
                                                 selectedBooks = selectedBooks + book
                                             }
                                         },
@@ -250,16 +256,23 @@ fun BooksPage(
             SortBottomSheet(
                 onDismissRequest = { viewModel.onEvent(BooksEvent.DismissBottomSheet) },
                 sortItems = listOf(
-                    ToggleItem(0, "Note Title Ascending", NotesSortOrder.NoteTitleAsc),
-                    ToggleItem(1, "Note Title Descending", NotesSortOrder.NoteTitleDesc),
-                    ToggleItem(2, "Page Ascending", NotesSortOrder.PageAsc),
-                    ToggleItem(3, "Page Descending", NotesSortOrder.PageDesc)
+                    ToggleItem(0, "Book Title Ascending", BooksSortOrder.BookTitleAsc),
+                    ToggleItem(1, "Book Title Descending", BooksSortOrder.BookTitleDesc),
+                    ToggleItem(2, "Author Ascending", BooksSortOrder.AuthorAsc),
+                    ToggleItem(3, "Author Descending", BooksSortOrder.AuthorDesc),
+                    ToggleItem(4, "Language Ascending", BooksSortOrder.LanguageAsc),
+                    ToggleItem(5, "Language Descending", BooksSortOrder.LanguageDesc),
                 ),
+                initialSelectedItem = selectedBottomSheetItem,
+                onItemSelected = { newItem -> selectedBottomSheetItem = newItem },
                 onClick = { order ->
-                    viewModel.onEvent(BooksEvent.ChangeOrder(order)); viewModel.onEvent(BooksEvent.DismissBottomSheet)
+                    viewModel.onEvent(BooksEvent.ChangeOrder(order))
+                    viewModel.onEvent(BooksEvent.GetBooks(state.searchQuery, order))
+                    viewModel.onEvent(BooksEvent.DismissBottomSheet)
                 }
             )
         }
+
 
         if (viewModel.isDialogShown){
             AddBookDialog(

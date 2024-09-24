@@ -98,6 +98,7 @@ fun NotesPage(
 
     var selectionMode by remember { mutableStateOf(false) }
     var selectedNotes by remember { mutableStateOf(listOf<Note>()) }
+    var selectedBottomSheetItem by remember { mutableStateOf<ToggleItem?>(ToggleItem(5, "Date Created Descending", NotesSortOrder.DateCreatedDesc),) }
 
     val player by lazy {
         NoteAudioPlayer(context)
@@ -341,10 +342,15 @@ fun NotesPage(
                     ToggleItem(0, "Note Title Ascending", NotesSortOrder.NoteTitleAsc),
                     ToggleItem(1, "Note Title Descending", NotesSortOrder.NoteTitleDesc),
                     ToggleItem(2, "Page Ascending", NotesSortOrder.PageAsc),
-                    ToggleItem(3, "Page Descending", NotesSortOrder.PageDesc)
+                    ToggleItem(3, "Page Descending", NotesSortOrder.PageDesc),
+                    ToggleItem(4, "Date Created Ascending", NotesSortOrder.DateCreatedAsc),
+                    ToggleItem(5, "Date Created Descending", NotesSortOrder.DateCreatedDesc),
                 ),
+                initialSelectedItem = selectedBottomSheetItem,
+                onItemSelected = { newItem -> selectedBottomSheetItem = newItem },
                 onClick = { order ->
                     viewModel.onEvent(NotesEvent.ChangeOrder(order)); viewModel.onEvent(NotesEvent.DismissBottomSheet)
+
                 }
             )
         }

@@ -17,8 +17,23 @@ interface BookDao {
     @Query("SELECT * FROM books WHERE id = :bookId")
     suspend fun getBookById(bookId: Long): Book
 
-    @Query("SELECT * FROM books WHERE title LIKE '%' || :searchQuery || '%' OR author LIKE '%' || :searchQuery || '%'")
-    fun getBooksBySearchQuery(searchQuery: String): Flow<List<Book>>
+    @Query("""
+        SELECT * FROM books 
+        WHERE title LIKE '%' || :searchQuery || '%' OR author LIKE '%' || :searchQuery || '%'
+        ORDER BY
+        CASE
+            WHEN :sortOrder = 'bookTitleAsc' THEN title COLLATE NOCASE END ASC,
+            CASE
+            WHEN :sortOrder = 'bookTitleDesc' THEN title COLLATE NOCASE END DESC,
+            CASE
+            WHEN :sortOrder = 'authorAsc' THEN author COLLATE NOCASE END ASC,
+            CASE
+            WHEN :sortOrder = 'authorDesc' THEN author COLLATE NOCASE END DESC,
+            CASE
+            WHEN :sortOrder = 'languageAsc' THEN language COLLATE NOCASE END ASC,
+            CASE
+            WHEN :sortOrder = 'languageDesc' THEN language COLLATE NOCASE END DESC""")
+    fun getBooksBySearchQuery(searchQuery: String, sortOrder: String): Flow<List<Book>>
 
     @Delete
     suspend fun deleteBook(books: List<Book>)

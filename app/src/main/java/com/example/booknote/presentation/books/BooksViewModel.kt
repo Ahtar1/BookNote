@@ -30,10 +30,11 @@ class BooksViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            bookUseCases.getBooks("").collectLatest {
+            bookUseCases.getBooks("", state.value.order).collectLatest {
                 _state.value = _state.value.copy(
                     books = it,
-                    searchQuery = _state.value.searchQuery
+                    searchQuery = _state.value.searchQuery,
+                    order = _state.value.order
                 )
             }
         }
@@ -49,10 +50,11 @@ class BooksViewModel @Inject constructor(
             is BooksEvent.GetBooks -> {
                 viewModelScope.launch {
                     println("Getbooks")
-                    bookUseCases.getBooks(event.searchQuery).collectLatest {
+                    bookUseCases.getBooks(event.searchQuery, state.value.order).collectLatest {
                         _state.value = _state.value.copy(
                             books = it,
-                            searchQuery = event.searchQuery
+                            searchQuery = event.searchQuery,
+                            order = state.value.order
                         )
                     }
                 }

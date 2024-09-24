@@ -16,16 +16,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.booknote.domain.util.NotesSortOrder
+import com.example.booknote.domain.util.SortOrder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SortBottomSheet(
     onDismissRequest: () -> Unit,
     sortItems: List<ToggleItem>,
-    onClick: (order: NotesSortOrder) -> Unit
+    initialSelectedItem: ToggleItem?,
+    onItemSelected: (ToggleItem) -> Unit,
+    onClick: (order: SortOrder) -> Unit
 ){
     var selectedItem by remember { mutableStateOf<ToggleItem?>(null) }
+
+    selectedItem = initialSelectedItem
 
     ModalBottomSheet(
         onDismissRequest = { onDismissRequest() },
@@ -42,7 +46,8 @@ fun SortBottomSheet(
         }
         ElevatedButton(
             onClick = {
-                selectedItem?.let { onClick(it.notesSortOrder) }
+                selectedItem?.let { onClick(it.sortOrder) }
+                onItemSelected(selectedItem!!)
             },
             modifier = Modifier
                 .fillMaxWidth(0.5f)
@@ -57,6 +62,6 @@ fun SortBottomSheet(
 data class ToggleItem(
     val id: Int,
     val title: String,
-    val notesSortOrder: NotesSortOrder,
+    val sortOrder: SortOrder,
     var isChecked: Boolean = false,
 )

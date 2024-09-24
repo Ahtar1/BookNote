@@ -21,7 +21,7 @@ fun ToggleListItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .clickable { onCheckedChange(item.id) }, // Row'a clickable ekleyin
+            .clickable { onCheckedChange(item.id) },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
