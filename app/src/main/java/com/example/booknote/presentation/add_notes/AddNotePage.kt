@@ -131,10 +131,15 @@ fun AddNotePage(
                 .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val focusRequester = remember { FocusRequester() }
 
-            LaunchedEffect(Unit) {
-                focusRequester.requestFocus()
+            var focusRequester: FocusRequester? = null
+
+            if(noteId == null){
+                focusRequester = remember { FocusRequester() }
+
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
+                }
             }
 
             Row(
@@ -196,10 +201,13 @@ fun AddNotePage(
                                 bringIntoViewRequester.bringIntoView(cursorRect)
                             }
                         },
-                        modifier = Modifier
+                        modifier = if(noteId == null) Modifier
                             .bringIntoViewRequester(bringIntoViewRequester)
                             .fillMaxSize()
-                            .focusRequester(focusRequester)
+                            .focusRequester(focusRequester!!)
+                            else Modifier
+                            .bringIntoViewRequester(bringIntoViewRequester)
+                            .fillMaxSize()
                     )
                 }
             }
