@@ -160,10 +160,9 @@ fun BooksPage(
                                 contentDescription = "Close Icon",
                             )
                         }
-                    }
-                ){
-                    Text(text = "Search")
-                }
+                    },
+                    content = {}
+                )
                 IconButton(
                     onClick = {
                         viewModel.onEvent(BooksEvent.OrderButtonClicked)

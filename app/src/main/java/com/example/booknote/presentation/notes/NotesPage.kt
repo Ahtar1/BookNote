@@ -219,7 +219,6 @@ fun NotesPage(
                     leadingIcon = {
                         Icon(imageVector = Icons.Filled.Search, contentDescription = "searchIcon")
                     },
-                    shape = RoundedCornerShape(4.dp),
                     content = {},
                 )
                 IconButton(
