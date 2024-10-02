@@ -39,4 +39,12 @@ class NoteRepositoryImpl(
         dao.deleteNote(notes)
     }
 
+    override suspend fun getAllNoteDates(): Flow<List<String>> {
+        return dao.getAllNoteDates()
+    }
+
+    override suspend fun getNotesByDate(date: String): Flow<List<Note>> {
+        return dao.getNotesByDate(date)
+    }
+
 }

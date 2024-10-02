@@ -33,6 +33,7 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -91,4 +92,9 @@ dependencies {
 
     // Kotlin Extensions and Coroutines support for Room
     implementation (libs.androidx.room.ktx)
+
+    implementation(libs.compose.calendar)
+    implementation(libs.compose.calendar.datetime)
+
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }

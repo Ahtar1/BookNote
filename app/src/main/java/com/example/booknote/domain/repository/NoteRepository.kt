@@ -11,4 +11,6 @@ interface NoteRepository {
     suspend fun getNotesOfABook(bookId: Long, searchQuery: String, sortOrder: SortOrder): Flow<List<Note>>
     suspend fun getNoteById(noteId: Long): Note
     suspend fun deleteNotes(notes: List<Note>)
+    suspend fun getAllNoteDates(): Flow<List<String>>
+    suspend fun getNotesByDate(date: String): Flow<List<Note>>
 }

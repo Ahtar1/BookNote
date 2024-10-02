@@ -6,4 +6,5 @@ sealed class Page(val route: String) {
     data object AddNotePage: Page("add_note_page")
     data object AddAudioPage: Page("add_audio_page")
     data object AddImagePage: Page("add_image_page")
+    data object CalendarPage: Page("calendar_page")
 }

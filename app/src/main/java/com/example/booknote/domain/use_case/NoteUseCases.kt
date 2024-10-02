@@ -5,5 +5,7 @@ data class NoteUseCases(
     val addNote: AddNote,
     val updateNote: UpdateNote,
     val getNote: GetNote,
-    val deleteNotes: DeleteNotes
+    val deleteNotes: DeleteNotes,
+    val getNoteDates: GetNoteDates,
+    val getNotesByDate: GetNotesByDate
     )

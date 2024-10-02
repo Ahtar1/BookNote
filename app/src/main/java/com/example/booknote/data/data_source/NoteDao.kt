@@ -4,7 +4,6 @@ import androidx.room.*
 import com.example.booknote.domain.model.Note
 import kotlinx.coroutines.flow.Flow
 
-
 @Dao
 interface NoteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -35,6 +34,14 @@ interface NoteDao {
 
     @Query("SELECT * FROM notes WHERE id = :noteId")
     suspend fun getNoteById(noteId: Long): Note
+
     @Delete
     suspend fun deleteNote(note: List<Note>)
+
+    @Query("SELECT DISTINCT dateCreated FROM notes")
+    fun getAllNoteDates(): Flow<List<String>>// New query to get all note dates
+
+    @Query("SELECT * FROM notes WHERE dateCreated LIKE '%' || :date || '%'")
+    fun getNotesByDate(date: String): Flow<List<Note>>
+
 }

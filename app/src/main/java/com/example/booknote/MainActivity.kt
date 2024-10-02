@@ -20,6 +20,7 @@ import androidx.navigation.navArgument
 import com.example.booknote.presentation.add_audio.AddAudioPage
 import com.example.booknote.presentation.add_image.AddImagePage
 import com.example.booknote.presentation.books.BooksPage
+import com.example.booknote.presentation.calendar.CalendarPage
 import com.example.booknote.presentation.notes.NotesPage
 import com.example.booknote.presentation.util.Page
 import com.example.booknote.ui.theme.BookNoteTheme
@@ -107,21 +108,24 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(
-                            route= Page.AddImagePage.route +
-                                    "?bookId={bookId}",
+                            route = Page.AddImagePage.route + "?bookId={bookId}&noteId={noteId}",
                             arguments = listOf(
-                                navArgument(
-                                    name = "bookId"
-                                ) {
+                                navArgument(name = "bookId") {
                                     type = NavType.LongType
                                     defaultValue = -1
+                                },
+                                navArgument(name = "noteId") {
+                                    nullable = true
+                                    defaultValue = null
                                 }
                             )
                         ){
                             val bookId = it.arguments?.getLong("bookId") ?: -1
-                            AddImagePage(
-                                navController, bookId
-                            )
+                            val noteId = it.arguments?.getString("noteId")?.toLong()
+                            AddImagePage(navController, bookId, noteId)
+                        }
+                        composable(route = Page.CalendarPage.route){
+                            CalendarPage(navController)
                         }
                     }
                 }
