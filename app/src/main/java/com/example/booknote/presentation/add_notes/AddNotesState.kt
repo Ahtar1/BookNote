@@ -7,6 +7,7 @@ data class AddNotesState(
         id = 0,
         bookId = 0,
         noteTitle = "",
+        imageFilePath = "",
         page = 0,
         dateCreated = "",
         favorite = false

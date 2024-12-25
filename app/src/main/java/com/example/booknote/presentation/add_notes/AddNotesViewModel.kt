@@ -23,17 +23,14 @@ class AddNotesViewModel @Inject constructor(
             is AddNotesEvent.AddNote -> {
                 viewModelScope.launch {
                     if (event.note.id == 0L) {
-                        println("noteId sıfır yeni not")
                         noteUseCases.addNote(event.note)
                     } else {
-                        println("noteId 0 değil eski not")
                         noteUseCases.updateNote(event.note)
                     }
                 }
             }
             is AddNotesEvent.GetNote -> {
                 viewModelScope.launch {
-                    println("noteTitle viewmodel: ${noteUseCases.getNote(event.noteId).noteTitle}")
                     _state.value = _state.value.copy(
                         note = noteUseCases.getNote(event.noteId)
                     )
