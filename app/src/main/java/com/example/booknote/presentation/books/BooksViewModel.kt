@@ -49,7 +49,6 @@ class BooksViewModel @Inject constructor(
             }
             is BooksEvent.GetBooks -> {
                 viewModelScope.launch {
-                    println("Getbooks")
                     bookUseCases.getBooks(event.searchQuery, state.value.order).collectLatest {
                         _state.value = _state.value.copy(
                             books = it,
