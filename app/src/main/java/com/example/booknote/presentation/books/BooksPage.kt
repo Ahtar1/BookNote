@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
@@ -91,6 +92,15 @@ fun BooksPage(
                             Icon(
                                 imageVector = Icons.Filled.Delete,
                                 contentDescription = "Delete Selected Books"
+                            )
+                        }
+                    } else{
+                        IconButton(onClick = {
+                            navController.navigate(Page.CalendarPage.route)
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.CalendarMonth,
+                                contentDescription = "Calendar"
                             )
                         }
                     }
