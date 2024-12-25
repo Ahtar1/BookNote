@@ -88,6 +88,24 @@ fun AddBookDialog(
                         focusRequester.requestFocus()
                     }
 
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.CenterEnd
+                    ) {
+                        IconButton(
+                            onClick = { onDismiss() },
+                            modifier = Modifier
+                                .padding(top = 10.dp)
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(24.dp),
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "Close",
+                            )
+                        }
+                    }
+
                     OutlinedTextField(
                         modifier = Modifier
                             .focusRequester(focusRequester),
@@ -140,7 +158,7 @@ fun AddBookDialog(
                     )
                     ElevatedButton(
                         modifier = Modifier
-                            .padding(top = 15.dp),
+                            .padding(top = 15.dp, bottom = 10.dp),
                         onClick = {
                             onConfirm(
                                 Book(
@@ -155,16 +173,6 @@ fun AddBookDialog(
                         Text(text = "Confirm")
                     }
                 }
-            }
-            IconButton(
-                onClick = { onDismiss() },
-                modifier = Modifier.padding(top = 10.dp, end = 10.dp, bottom = 10.dp)
-            ) {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    imageVector = Icons.Filled.Close,
-                    contentDescription = "Close",
-                )
             }
         }
     }
