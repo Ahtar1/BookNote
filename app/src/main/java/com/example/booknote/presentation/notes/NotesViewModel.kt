@@ -36,11 +36,7 @@ class NotesViewModel @Inject constructor(
             }
             is NotesEvent.GetNotes -> {
                 viewModelScope.launch {
-                    println("GetNotes order: ${state.value.order}")
-                    println("GetNotes searchquery: ${event.searchQuery}")
-                    println("GetNotes bookid: ${event.bookId}")
                     noteUseCases.getNotes(bookId = event.bookId.toLong(),event.searchQuery, state.value.order).collectLatest {
-                        println("note Size GetNotes viewmodel: ${it.size}")
                         _state.value = _state.value.copy(
                             notes = it,
                             searchQuery = event.searchQuery,
