@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
+import android.provider.MediaStore
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -41,7 +42,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Audiotrack
-import androidx.compose.material.icons.rounded.Image
+import androidx.compose.material.icons.rounded.Draw
 import androidx.compose.material.icons.rounded.TextFormat
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -112,6 +113,38 @@ fun NotesPage(
         viewModel.onEvent(NotesEvent.GetNotes(bookId = bookId.toString(), searchQuery = viewModel.state.value.searchQuery, notesSortOrder = viewModel.state.value.order))
     }
 
+    fun getImagesFromGallery(context: Context, folderName: String): List<Uri> {
+        val imageList = mutableListOf<Uri>()
+        val resolver = context.contentResolver
+
+        val imageCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        } else {
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        }
+
+        // Sorgu filtresi: Belirli bir klasörden resimleri çekmek
+        val selection = "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ?"
+        val selectionArgs = arrayOf("%Pictures/$folderName%")
+
+        val projection = arrayOf(
+            MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.DISPLAY_NAME
+        )
+
+        resolver.query(imageCollection, projection, selection, selectionArgs, null)?.use { cursor ->
+            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+
+            while (cursor.moveToNext()) {
+                val id = cursor.getLong(idColumn)
+                val contentUri = Uri.withAppendedPath(imageCollection, id.toString())
+                imageList.add(contentUri)
+            }
+        }
+
+        return imageList
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -155,30 +188,30 @@ fun NotesPage(
             val itemList = listOf(
                 FABItem(
                     icon = Icons.Rounded.TextFormat,
-                    text = "Text"
+                    text = "Note"
                 ),
                 FABItem(
                     icon = Icons.Rounded.Audiotrack,
                     text = "Audio"
                 ),
                 FABItem(
-                    icon = Icons.Rounded.Image,
-                    text = "Image"
-                ),
+                    icon = Icons.Rounded.Draw,
+                    text = "Draw"
+                )
             )
 
             CustomExpandableFAB(
                 items = itemList,
                 onItemClick = { item ->
                     when (item.text) {
-                        "Text" -> navController.navigate(
+                        "Note" -> navController.navigate(
                             Page.AddNotePage.route + "?bookId=${bookId}"
                         )
                         "Audio" -> navController.navigate(
                             Page.AddAudioPage.route + "?bookId=${bookId}"
                         )
-                        "Image" -> navController.navigate(
-                            Page.AddImagePage.route + "?bookId=${bookId}"
+                        "Draw" -> navController.navigate(
+                            Page.DrawNotePage.route + "?bookId=${bookId}"
                         )
                     }
                 }
@@ -257,7 +290,7 @@ fun NotesPage(
                                         }
                                     },
                                     onTap = {
-                                        if(selectionMode){
+                                        if (selectionMode) {
                                             if (selectedNotes.contains(note)) {
                                                 selectedNotes = selectedNotes - note
                                                 if (selectedNotes.isEmpty()) {
@@ -267,9 +300,11 @@ fun NotesPage(
                                                 selectedNotes = selectedNotes + note
                                             }
                                         } else {
-                                            navController.navigate(
-                                                Page.AddNotePage.route + "?bookId=${bookId}&noteId=${note.id}"
-                                            )
+                                            if (note.audioFilePath == null) {
+                                                navController.navigate(
+                                                    Page.AddNotePage.route + "?bookId=${bookId}&noteId=${note.id}"
+                                                )
+                                            }
                                         }
                                     }
                                 )
@@ -278,53 +313,51 @@ fun NotesPage(
                             containerColor = if (isSelected) Color(0xffBBDEFB) else Color(0xffD8EFD3)
                         )
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalAlignment = Alignment.Top,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp)
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize(0.9f)
-                                    .padding(16.dp)
-                                    .padding(end = 32.dp)
-                            ) {
+                            Text(
+                                text = note.noteTitle,
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 10,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            if (note.noteText != null) {
                                 Text(
-                                    text = note.noteTitle,
-                                    style = MaterialTheme.typography.headlineSmall,
+                                    text = note.noteText,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     maxLines = 10,
                                     overflow = TextOverflow.Ellipsis
                                 )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                if (note.noteText != null) {
-                                    Text(
-                                        text = note.noteText,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        maxLines = 10,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
+                            }
+                            if (note.audioFilePath != null) {
+                                ElevatedButton(onClick = {
+                                    val audioFile = File(note.audioFilePath)
+                                    player.playFile(audioFile)
+                                }) {
+                                    Text(text = "Play Audio Note")
                                 }
-                                if (note.audioFilePath != null) {
-                                    ElevatedButton(onClick = {
-                                        val audioFile = File(note.audioFilePath)
-                                        player.playFile(audioFile)
-                                    }) {
-                                        Text(text = "Play Audio Note")
-                                    }
-                                }
-                                note.imageFilePath?.let { imagePath ->
-                                    val imageFile = File(imagePath)
-                                    if (imageFile.exists()) {
-                                        val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
+                            }
+                            note.imageFilePath?.let { imagePath ->
+                                val imageFile = File(imagePath)
+                                if (imageFile.exists()) {
+                                    val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
+                                    Box(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
                                         Image(
                                             bitmap = bitmap.asImageBitmap(),
                                             contentDescription = null,
                                             modifier = Modifier
                                                 .size(300.dp)
-                                                .padding(10.dp)
-                                        )
+                                                .padding(10.dp),
+                                            )
                                     }
                                 }
                             }
@@ -532,3 +565,4 @@ fun saveImageToInternalStorage(context: Context, uri: Uri): File? {
         null
     }
 }
+

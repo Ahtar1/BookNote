@@ -18,9 +18,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.booknote.presentation.add_audio.AddAudioPage
-import com.example.booknote.presentation.add_image.AddImagePage
 import com.example.booknote.presentation.books.BooksPage
 import com.example.booknote.presentation.calendar.CalendarPage
+import com.example.booknote.presentation.draw_note.DrawNotePage
 import com.example.booknote.presentation.notes.NotesPage
 import com.example.booknote.presentation.util.Page
 import com.example.booknote.ui.theme.BookNoteTheme
@@ -108,21 +108,21 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(
-                            route = Page.AddImagePage.route + "?bookId={bookId}&noteId={noteId}",
+                            route= Page.DrawNotePage.route +
+                                    "?bookId={bookId}",
                             arguments = listOf(
-                                navArgument(name = "bookId") {
+                                navArgument(
+                                    name = "bookId"
+                                ) {
                                     type = NavType.LongType
                                     defaultValue = -1
-                                },
-                                navArgument(name = "noteId") {
-                                    nullable = true
-                                    defaultValue = null
                                 }
                             )
                         ){
                             val bookId = it.arguments?.getLong("bookId") ?: -1
-                            val noteId = it.arguments?.getString("noteId")?.toLong()
-                            AddImagePage(navController, bookId, noteId)
+                            DrawNotePage(
+                                navController, bookId
+                            )
                         }
                         composable(route = Page.CalendarPage.route){
                             CalendarPage(navController)

@@ -48,6 +48,7 @@ ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 material3 = { group = "androidx.compose.material3", name = "material3" }
 compose-calendar = { group = "io.github.boguszpawlowski.composecalendar", name = "composecalendar", version.ref = "compose-calendar" }
 compose-calendar-datetime = { group = "io.github.boguszpawlowski.composecalendar", name = "kotlinx-datetime", version.ref = "compose-calendar" }
+sketchbook = { module = "io.getstream:sketchbook", version = "1.0.4" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
