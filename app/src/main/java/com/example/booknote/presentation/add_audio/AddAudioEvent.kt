@@ -4,4 +4,6 @@ import com.example.booknote.domain.model.Note
 
 sealed class AddAudioEvent {
     data class AddAudio(val note: Note): AddAudioEvent()
+    data object SaveButtonClicked: AddAudioEvent()
+    data object DismissBottomSheet: AddAudioEvent()
 }

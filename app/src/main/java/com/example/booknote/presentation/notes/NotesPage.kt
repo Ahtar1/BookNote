@@ -290,7 +290,7 @@ fun NotesPage(
                                         }
                                     },
                                     onTap = {
-                                        if (selectionMode) {
+                                        if(selectionMode){
                                             if (selectedNotes.contains(note)) {
                                                 selectedNotes = selectedNotes - note
                                                 if (selectedNotes.isEmpty()) {
@@ -356,8 +356,8 @@ fun NotesPage(
                                             contentDescription = null,
                                             modifier = Modifier
                                                 .size(300.dp)
-                                                .padding(10.dp),
-                                            )
+                                                .padding(10.dp)
+                                        )
                                     }
                                 }
                             }
@@ -565,4 +565,3 @@ fun saveImageToInternalStorage(context: Context, uri: Uri): File? {
         null
     }
 }
-
