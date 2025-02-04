@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.booknote.presentation.util.Page
+import com.example.booknote.presentation.util.extension.noRippleClickable
 import com.example.booknote.presentation.util.record.NoteAudioPlayer
 import io.github.boguszpawlowski.composecalendar.CalendarState
 import io.github.boguszpawlowski.composecalendar.SelectableCalendar
@@ -114,7 +116,14 @@ fun CalendarPage(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(12.dp),
+                            .padding(12.dp)
+                            .noRippleClickable {
+                                if (note.audioFilePath == null){
+                                    navController.navigate(
+                                        Page.AddNotePage.route + "?bookId=${note.bookId}&noteId=${note.id}"
+                                    )
+                                }
+                            },
                         colors = CardDefaults.cardColors(
                             containerColor = Color(0xffD8EFD3)
                         )
