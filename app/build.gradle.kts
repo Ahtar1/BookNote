@@ -103,5 +103,6 @@ dependencies {
 
     implementation(libs.sketchbook)
 
+    implementation("androidx.media3:media3-exoplayer:1.3.1")
 
 }

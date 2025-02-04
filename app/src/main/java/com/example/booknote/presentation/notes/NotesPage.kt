@@ -46,7 +46,6 @@ import androidx.compose.material.icons.rounded.Draw
 import androidx.compose.material.icons.rounded.TextFormat
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -68,7 +67,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -79,6 +77,7 @@ import com.example.booknote.domain.util.NotesSortOrder
 import com.example.booknote.presentation.notes.components.SortBottomSheet
 import com.example.booknote.presentation.notes.components.ToggleItem
 import com.example.booknote.presentation.util.Page
+import com.example.booknote.presentation.util.record.ExoPlayer
 import com.example.booknote.presentation.util.record.NoteAudioPlayer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -93,17 +92,12 @@ fun NotesPage(
     bookTitle: String,
     viewModel: NotesViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current.applicationContext
     val state = viewModel.state.value
     val scope = rememberCoroutineScope()
 
     var selectionMode by remember { mutableStateOf(false) }
     var selectedNotes by remember { mutableStateOf(listOf<Note>()) }
     var selectedBottomSheetItem by remember { mutableStateOf<ToggleItem?>(ToggleItem(5, "Date Created Descending", NotesSortOrder.DateCreatedDesc),) }
-
-    val player by lazy {
-        NoteAudioPlayer(context)
-    }
 
     LaunchedEffect(bookId) {
         viewModel.onEvent(NotesEvent.GetNotes(bookId = bookId.toString(), searchQuery = ""))
@@ -123,7 +117,6 @@ fun NotesPage(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI
         }
 
-        // Sorgu filtresi: Belirli bir klasörden resimleri çekmek
         val selection = "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ?"
         val selectionArgs = arrayOf("%Pictures/$folderName%")
 
@@ -290,7 +283,7 @@ fun NotesPage(
                                         }
                                     },
                                     onTap = {
-                                        if(selectionMode){
+                                        if (selectionMode) {
                                             if (selectedNotes.contains(note)) {
                                                 selectedNotes = selectedNotes - note
                                                 if (selectedNotes.isEmpty()) {
@@ -336,12 +329,7 @@ fun NotesPage(
                                 )
                             }
                             if (note.audioFilePath != null) {
-                                ElevatedButton(onClick = {
-                                    val audioFile = File(note.audioFilePath)
-                                    player.playFile(audioFile)
-                                }) {
-                                    Text(text = "Play Audio Note")
-                                }
+                                ExoPlayer(Uri.fromFile(File(note.audioFilePath)))
                             }
                             note.imageFilePath?.let { imagePath ->
                                 val imageFile = File(imagePath)
