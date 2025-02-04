@@ -76,10 +76,6 @@ fun AddAudioPage(
         NoteAudioRecorder(context)
     }
 
-    val player by lazy {
-        NoteAudioPlayer(context)
-    }
-
     var audioFile by remember { mutableStateOf<File?>(null) }
     var volumeLevel by remember { mutableStateOf(0f) }
     val volumeLevels = remember { mutableStateListOf<Float>() }

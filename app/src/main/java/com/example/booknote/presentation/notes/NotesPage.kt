@@ -78,7 +78,6 @@ import com.example.booknote.presentation.notes.components.SortBottomSheet
 import com.example.booknote.presentation.notes.components.ToggleItem
 import com.example.booknote.presentation.util.Page
 import com.example.booknote.presentation.util.record.ExoPlayer
-import com.example.booknote.presentation.util.record.NoteAudioPlayer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
