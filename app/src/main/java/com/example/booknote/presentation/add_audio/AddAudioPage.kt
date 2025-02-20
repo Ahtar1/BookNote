@@ -112,7 +112,8 @@ fun AddAudioPage(
                             contentDescription = "Back"
                         )
                     }
-                })
+                }
+            )
         },
     ) { paddingValues ->
 

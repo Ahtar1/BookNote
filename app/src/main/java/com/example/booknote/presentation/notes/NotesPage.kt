@@ -260,9 +260,12 @@ fun NotesPage(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 10.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                items(state.notes) { note ->
+                items(
+                    items = state.notes,
+                    key = { note -> note.id }
+                ) { note ->
                     val isSelected = selectedNotes.contains(note)
                     Card(
                         modifier = Modifier
@@ -328,6 +331,7 @@ fun NotesPage(
                                 )
                             }
                             if (note.audioFilePath != null) {
+                                println("Audio File Path: ${note.audioFilePath}")
                                 ExoPlayer(Uri.fromFile(File(note.audioFilePath)))
                             }
                             note.imageFilePath?.let { imagePath ->

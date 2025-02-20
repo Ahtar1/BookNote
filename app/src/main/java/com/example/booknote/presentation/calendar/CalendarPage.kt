@@ -2,6 +2,7 @@ package com.example.booknote.presentation.calendar
 
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,7 +33,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -118,7 +122,7 @@ fun CalendarPage(
                             .fillMaxWidth()
                             .padding(12.dp)
                             .noRippleClickable {
-                                if (note.audioFilePath == null){
+                                if (note.audioFilePath == null) {
                                     navController.navigate(
                                         Page.AddNotePage.route + "?bookId=${note.bookId}&noteId=${note.id}"
                                     )
@@ -209,6 +213,26 @@ fun DayContent(day: Day, dateList: List<LocalDate>, calendarState: CalendarState
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
+
+                if (LocalDate.now() == day.date) {
+                    Canvas(modifier = Modifier) {
+                        val canvasWidth = size.width
+                        val canvasHeight = size.height
+
+                        val path = Path().apply {
+                            moveTo(canvasWidth / 2f, 0f)
+                            lineTo(0f, canvasHeight)
+                            lineTo(canvasWidth, canvasHeight)
+                            close()
+                        }
+
+                        drawPath(
+                            path = path,
+                            color = Color.Red,
+                            style = androidx.compose.ui.graphics.drawscope.Fill
+                        )
+                    }
+                }
                 Text(
                     modifier = Modifier,
                     text = day.date.dayOfMonth.toString(),

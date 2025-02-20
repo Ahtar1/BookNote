@@ -25,6 +25,8 @@ class NoteAudioRecorder(
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
             setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
             setOutputFile(FileOutputStream(outputFile).fd)
+            setAudioSamplingRate(44100)
+            setAudioEncodingBitRate(128000)
 
             prepare()
             start()
