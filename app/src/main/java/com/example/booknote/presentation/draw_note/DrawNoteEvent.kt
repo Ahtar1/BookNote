@@ -1,5 +1,6 @@
 package com.example.booknote.presentation.draw_note
 
+import android.graphics.Bitmap
 import androidx.compose.ui.graphics.ImageBitmap
 
 sealed class DrawNoteEvent {
@@ -7,6 +8,6 @@ sealed class DrawNoteEvent {
         val bookId: Long,
         val title: String,
         val content: String,
-        val image: ImageBitmap
+        val image: Bitmap
     ): DrawNoteEvent()
 }

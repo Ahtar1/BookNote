@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,6 +51,8 @@ import io.getstream.sketchbook.PaintColorPalette
 import io.getstream.sketchbook.PaintColorPaletteTheme
 import io.getstream.sketchbook.Sketchbook
 import io.getstream.sketchbook.rememberSketchbookController
+import java.io.File
+import java.io.FileOutputStream
 
 @SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +62,10 @@ fun DrawNotePage(
     bookId: Long,
     viewModel: DrawNoteViewModel = hiltViewModel()
 ) {
+
+    var saved = remember {
+        mutableStateOf(false)
+    }
     val context = LocalContext.current
     val sketchbookController = rememberSketchbookController()
     var expanded by remember { mutableStateOf(false) }
@@ -67,41 +74,24 @@ fun DrawNotePage(
     sketchbookController.setPaintColor(Color.Black)
     sketchbookController.setPaintStrokeWidth(selectedLineWeight)
 
-    fun saveBitmapToGallery(context: Context, bitmap: Bitmap, fileName: String): Uri? {
-        val resolver = context.contentResolver
-        val imageCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-        } else {
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        }
+    fun saveBitmapToExternal(){
 
-        val contentValues = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, "$fileName.jpg")
-            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/MyAppImages") // Özel klasör
-                put(MediaStore.Images.Media.IS_PENDING, 1)
-            }
-        }
-
-        val imageUri = resolver.insert(imageCollection, contentValues)
-
-        imageUri?.let { uri ->
-            resolver.openOutputStream(uri)?.use { outputStream ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                contentValues.clear()
-                contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
-                resolver.update(uri, contentValues, null, null)
-            }
-
-            return uri
-        }
-
-        return null
     }
+
+    fun saveBitmapToInternalStorage(context: Context, bitmap: Bitmap, fileName: String): String? {
+        return try {
+            val file = File(context.filesDir, "$fileName.png")
+            val outputStream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            outputStream.flush()
+            outputStream.close()
+            file.absolutePath
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
 
     Scaffold(
         topBar = {
@@ -122,15 +112,15 @@ fun DrawNotePage(
                 },
                 actions = {
                     IconButton(onClick = {
-                        saveBitmapToGallery(context = context, sketchbookController.getSketchbookBitmap().asAndroidBitmap(),"")
+                        saveBitmapToInternalStorage(context = context, sketchbookController.getSketchbookBitmap().asAndroidBitmap(),"")
                         viewModel.onEvent(DrawNoteEvent.SaveNote(
                             bookId = bookId,
                             title = "Title",
                             content = "Content",
-                            image = sketchbookController.getSketchbookBitmap()
+                            image = sketchbookController.getSketchbookBitmap().asAndroidBitmap()
                         ))
                         println(sketchbookController.getSketchbookBitmap())
-                        navController.navigateUp()
+                        saved.value = true
                     }) {
                         Icon(
                             imageVector = Icons.Filled.Save,
@@ -142,130 +132,135 @@ fun DrawNotePage(
         },
     ) { paddingValues ->
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            Column {
-                Sketchbook(
-                    modifier = Modifier
-                        .fillMaxHeight(0.8f)
-                        .fillMaxWidth(),
-                    controller = sketchbookController,
-                    backgroundColor = Color.Black,
-                )
-                PaintColorPalette(
-                    modifier = Modifier
-                        .fillMaxHeight(0.5f)
-                        .fillMaxWidth()
-                        .border(1.dp, Color.Black),
-                    theme = PaintColorPaletteTheme(
-                        shape = CircleShape,
-                        itemSize = 48.dp,
-                        selectedItemSize = 58.dp,
-                        borderColor = Color.Black,
-                        borderWidth = 2.dp,
-                    ),
-                    controller = sketchbookController,
-                    initialSelectedIndex = 0,
-                    colorList = listOf(
-                        Color.Black,
-                        Color.Yellow,
-                        Color.Red,
-                        Color.Green,
-                        Color.Blue,
-                        Color.Cyan,
-                    ),
-                )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    IconButton(onClick = { sketchbookController.undo() }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBackIosNew,
-                            contentDescription = "ArrowBackIosNew"
-                        )
-                    }
+        if (saved.value){
+            Image(bitmap = sketchbookController.getSketchbookBitmap(), contentDescription = "")
+        } else {
 
-                    Column {
-                        // Ana buton
-                        IconButton(onClick = { expanded = true }) {
-                            Icon(imageVector = Icons.Filled.LineWeight, contentDescription = "Line Weight")
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                Column {
+                    Sketchbook(
+                        modifier = Modifier
+                            .fillMaxHeight(0.8f)
+                            .fillMaxWidth(),
+                        controller = sketchbookController,
+                        backgroundColor = Color.Black,
+                    )
+                    PaintColorPalette(
+                        modifier = Modifier
+                            .fillMaxHeight(0.5f)
+                            .fillMaxWidth()
+                            .border(1.dp, Color.Black),
+                        theme = PaintColorPaletteTheme(
+                            shape = CircleShape,
+                            itemSize = 48.dp,
+                            selectedItemSize = 58.dp,
+                            borderColor = Color.Black,
+                            borderWidth = 2.dp,
+                        ),
+                        controller = sketchbookController,
+                        initialSelectedIndex = 0,
+                        colorList = listOf(
+                            Color.Black,
+                            Color.Yellow,
+                            Color.Red,
+                            Color.Green,
+                            Color.Blue,
+                            Color.Cyan,
+                        ),
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        IconButton(onClick = { sketchbookController.undo() }) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBackIosNew,
+                                contentDescription = "ArrowBackIosNew"
+                            )
                         }
 
-                        // DropdownMenu ile seçenekler
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false }
-                        ) {
-                            DropdownMenuItem(
-                                onClick = {
-                                sketchbookController.setPaintStrokeWidth(4f)
-                                expanded = false
-                                selectedLineWeight = 4f
-                            },
-                                text = {Text("İnce")},
-                                enabled = selectedLineWeight != 4f,
-                                trailingIcon = {
-                                    if (selectedLineWeight == 4f)
-                                        Icon(
-                                            imageVector = Icons.Filled.Done,
-                                            contentDescription = "Done"
-                                        )
-                                }
+                        Column {
+                            IconButton(onClick = { expanded = true }) {
+                                Icon(
+                                    imageVector = Icons.Filled.LineWeight,
+                                    contentDescription = "Line Weight"
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    onClick = {
+                                        sketchbookController.setPaintStrokeWidth(4f)
+                                        expanded = false
+                                        selectedLineWeight = 4f
+                                    },
+                                    text = { Text("İnce") },
+                                    enabled = selectedLineWeight != 4f,
+                                    trailingIcon = {
+                                        if (selectedLineWeight == 4f)
+                                            Icon(
+                                                imageVector = Icons.Filled.Done,
+                                                contentDescription = "Done"
+                                            )
+                                    }
 
-                            )
-                            DropdownMenuItem(
-                                onClick = {
-                                    sketchbookController.setPaintStrokeWidth(8f)
-                                    expanded = false
-                                    selectedLineWeight = 8f
-                                },
-                                text = {Text("Orta")},
-                                enabled = selectedLineWeight != 8f,
-                                trailingIcon = {
-                                    if (selectedLineWeight == 8f)
-                                    Icon(
-                                        imageVector = Icons.Filled.Done,
-                                        contentDescription = "Done"
-                                    )
-                                }
-                            )
-                            DropdownMenuItem(
-                                onClick = {
-                                    sketchbookController.setPaintStrokeWidth(12f)
-                                    expanded = false
-                                    selectedLineWeight = 12f
-                                },
-                                text = {Text("Kalın")},
-                                enabled = selectedLineWeight != 12f,
-                                trailingIcon = {
-                                    if (selectedLineWeight == 12f)
-                                        Icon(
-                                            imageVector = Icons.Filled.Done,
-                                            contentDescription = "Done"
-                                        )
-                                }
-                            )
-                            DropdownMenuItem(
-                                onClick = {
-                                    sketchbookController.setPaintStrokeWidth(16f)
-                                    expanded = false
-                                    selectedLineWeight = 16f
-                                },
-                                text = {Text("Çok Kalın")},
-                                enabled = selectedLineWeight != 16f,
-                                trailingIcon = {
-                                    if (selectedLineWeight == 16f)
-                                        Icon(
-                                            imageVector = Icons.Filled.Done,
-                                            contentDescription = "Done"
-                                        )
-                                }
-                            )
+                                )
+                                DropdownMenuItem(
+                                    onClick = {
+                                        sketchbookController.setPaintStrokeWidth(8f)
+                                        expanded = false
+                                        selectedLineWeight = 8f
+                                    },
+                                    text = { Text("Orta") },
+                                    enabled = selectedLineWeight != 8f,
+                                    trailingIcon = {
+                                        if (selectedLineWeight == 8f)
+                                            Icon(
+                                                imageVector = Icons.Filled.Done,
+                                                contentDescription = "Done"
+                                            )
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    onClick = {
+                                        sketchbookController.setPaintStrokeWidth(12f)
+                                        expanded = false
+                                        selectedLineWeight = 12f
+                                    },
+                                    text = { Text("Kalın") },
+                                    enabled = selectedLineWeight != 12f,
+                                    trailingIcon = {
+                                        if (selectedLineWeight == 12f)
+                                            Icon(
+                                                imageVector = Icons.Filled.Done,
+                                                contentDescription = "Done"
+                                            )
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    onClick = {
+                                        sketchbookController.setPaintStrokeWidth(16f)
+                                        expanded = false
+                                        selectedLineWeight = 16f
+                                    },
+                                    text = { Text("Çok Kalın") },
+                                    enabled = selectedLineWeight != 16f,
+                                    trailingIcon = {
+                                        if (selectedLineWeight == 16f)
+                                            Icon(
+                                                imageVector = Icons.Filled.Done,
+                                                contentDescription = "Done"
+                                            )
+                                    }
+                                )
+                            }
                         }
                     }
                 }
