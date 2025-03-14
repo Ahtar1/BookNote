@@ -40,7 +40,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Audiotrack
 import androidx.compose.material.icons.rounded.Draw
@@ -105,37 +104,6 @@ fun NotesPage(
 
     LaunchedEffect(viewModel.state.value.order) {
         viewModel.onEvent(NotesEvent.GetNotes(bookId = bookId.toString(), searchQuery = viewModel.state.value.searchQuery, notesSortOrder = viewModel.state.value.order))
-    }
-
-    fun getImagesFromGallery(context: Context, folderName: String): List<Uri> {
-        val imageList = mutableListOf<Uri>()
-        val resolver = context.contentResolver
-
-        val imageCollection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-        } else {
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        }
-
-        val selection = "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ?"
-        val selectionArgs = arrayOf("%Pictures/$folderName%")
-
-        val projection = arrayOf(
-            MediaStore.Images.Media._ID,
-            MediaStore.Images.Media.DISPLAY_NAME
-        )
-
-        resolver.query(imageCollection, projection, selection, selectionArgs, null)?.use { cursor ->
-            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-
-            while (cursor.moveToNext()) {
-                val id = cursor.getLong(idColumn)
-                val contentUri = Uri.withAppendedPath(imageCollection, id.toString())
-                imageList.add(contentUri)
-            }
-        }
-
-        return imageList
     }
 
     Scaffold(

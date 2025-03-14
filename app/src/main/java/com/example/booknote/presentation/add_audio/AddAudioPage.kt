@@ -216,7 +216,6 @@ fun AddAudioPage(
                                             delay(100)
                                         }
                                     }
-                                } else{
                                 }
                                 recorder.resume()
                                 isPaused = false
