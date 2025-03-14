@@ -23,5 +23,6 @@ data class Note(
     val page: Int,
     val dateCreated: String,
     val favorite: Boolean = false,
+    val isDrawn: Boolean = false,
     @ColumnInfo(index = true) val bookId: Long
 )

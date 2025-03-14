@@ -108,20 +108,24 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(
-                            route= Page.DrawNotePage.route +
-                                    "?bookId={bookId}",
+                            route = Page.DrawNotePage.route + "?bookId={bookId}&noteId={noteId}",
                             arguments = listOf(
                                 navArgument(
                                     name = "bookId"
                                 ) {
                                     type = NavType.LongType
                                     defaultValue = -1
+                                },
+                                navArgument(name = "noteId") {
+                                    nullable = true
+                                    defaultValue = null
                                 }
                             )
                         ){
                             val bookId = it.arguments?.getLong("bookId") ?: -1
+                            val noteId = it.arguments?.getString("noteId")?.toLong()
                             DrawNotePage(
-                                navController, bookId
+                                navController, bookId, noteId
                             )
                         }
                         composable(route = Page.CalendarPage.route){

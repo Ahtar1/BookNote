@@ -32,6 +32,11 @@ class NotesViewModel @Inject constructor(
             is NotesEvent.DeleteNotes -> {
                 viewModelScope.launch {
                     noteUseCases.deleteNotes(event.notes)
+                    event.notes.forEach { note ->
+                        note.imageFilePath?.let {
+                            deleteImageFromStorage(note.imageFilePath)
+                        }
+                    }
                 }
             }
             is NotesEvent.GetNotes -> {
@@ -96,6 +101,13 @@ class NotesViewModel @Inject constructor(
 
     private fun findFilesByBookId(context: Context, bookId: Int): List<File> {
         return listOf(File(context.getExternalFilesDir(null), "audio_${bookId}_aaa.mp3"))
+    }
+
+    private fun deleteImageFromStorage(filePath: String) {
+        val file = File(filePath)
+        if (file.exists()) {
+            file.delete()
+        }
     }
 
 }

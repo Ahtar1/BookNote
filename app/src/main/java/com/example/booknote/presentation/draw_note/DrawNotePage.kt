@@ -1,27 +1,28 @@
 package com.example.booknote.presentation.draw_note
 
 import android.annotation.SuppressLint
-import android.content.ContentValues
-import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
-import androidx.compose.foundation.Image
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.LineWeight
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.DropdownMenu
@@ -33,6 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -41,18 +43,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.booknote.presentation.add_audio.components.SaveBottomSheet
+import com.example.booknote.presentation.notes.saveImageToInternalStorage
 import io.getstream.sketchbook.PaintColorPalette
 import io.getstream.sketchbook.PaintColorPaletteTheme
 import io.getstream.sketchbook.Sketchbook
 import io.getstream.sketchbook.rememberSketchbookController
-import java.io.File
-import java.io.FileOutputStream
 
 @SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,38 +63,49 @@ import java.io.FileOutputStream
 fun DrawNotePage(
     navController: NavController,
     bookId: Long,
+    noteId: Long?,
     viewModel: DrawNoteViewModel = hiltViewModel()
 ) {
 
-    var saved = remember {
-        mutableStateOf(false)
-    }
+    var capturedBitmap by remember { mutableStateOf<Bitmap?>(null) }
     val context = LocalContext.current
     val sketchbookController = rememberSketchbookController()
     var expanded by remember { mutableStateOf(false) }
     var selectedLineWeight by remember { mutableFloatStateOf(8f) }
+    var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var imagePath by remember { mutableStateOf("") }
+    val colorList by remember { mutableStateOf(listOf(Color.Black, Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Magenta, Color.Cyan, Color.White)) }
 
-    sketchbookController.setPaintColor(Color.Black)
-    sketchbookController.setPaintStrokeWidth(selectedLineWeight)
+    val state = viewModel.state.value
 
-    fun saveBitmapToExternal(){
-
-    }
-
-    fun saveBitmapToInternalStorage(context: Context, bitmap: Bitmap, fileName: String): String? {
-        return try {
-            val file = File(context.filesDir, "$fileName.png")
-            val outputStream = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-            outputStream.flush()
-            outputStream.close()
-            file.absolutePath
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            val imageFile = saveImageToInternalStorage(context, uri)
+            imagePath = imageFile?.absolutePath ?: ""
+            imageBitmap = BitmapFactory.decodeFile(imageFile?.absolutePath)
         }
     }
 
+    sketchbookController.setPaintColor(Color.Black)
+    sketchbookController.setPaintStrokeWidth(selectedLineWeight)
+    imageBitmap?.let {
+        sketchbookController.setImageBitmap(it.asImageBitmap())
+    }
+
+    LaunchedEffect(noteId) {
+        noteId?.let {
+            viewModel.onEvent(DrawNoteEvent.GetNote(it))
+        }
+    }
+
+    LaunchedEffect(state.note.imageFilePath) {
+        state.note.imageFilePath?.let {
+            val bitmap = BitmapFactory.decodeFile(it)?.asImageBitmap()
+            sketchbookController.setImageBitmap(bitmap)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -112,15 +126,14 @@ fun DrawNotePage(
                 },
                 actions = {
                     IconButton(onClick = {
-                        saveBitmapToInternalStorage(context = context, sketchbookController.getSketchbookBitmap().asAndroidBitmap(),"")
-                        viewModel.onEvent(DrawNoteEvent.SaveNote(
-                            bookId = bookId,
-                            title = "Title",
-                            content = "Content",
-                            image = sketchbookController.getSketchbookBitmap().asAndroidBitmap()
-                        ))
-                        println(sketchbookController.getSketchbookBitmap())
-                        saved.value = true
+                        launcher.launch("image/*")
+                    }) {
+                        Icon(imageVector = Icons.Filled.Image, contentDescription = "Add Image Button")
+                    }
+
+                    IconButton(onClick = {
+                        capturedBitmap = sketchbookController.getSketchbookBitmap().asAndroidBitmap()
+                        viewModel.onEvent(DrawNoteEvent.SaveButtonClicked)
                     }) {
                         Icon(
                             imageVector = Icons.Filled.Save,
@@ -132,139 +145,140 @@ fun DrawNotePage(
         },
     ) { paddingValues ->
 
-        if (saved.value){
-            Image(bitmap = sketchbookController.getSketchbookBitmap(), contentDescription = "")
-        } else {
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                Column {
-                    Sketchbook(
-                        modifier = Modifier
-                            .fillMaxHeight(0.8f)
-                            .fillMaxWidth(),
-                        controller = sketchbookController,
-                        backgroundColor = Color.Black,
-                    )
-                    PaintColorPalette(
-                        modifier = Modifier
-                            .fillMaxHeight(0.5f)
-                            .fillMaxWidth()
-                            .border(1.dp, Color.Black),
-                        theme = PaintColorPaletteTheme(
-                            shape = CircleShape,
-                            itemSize = 48.dp,
-                            selectedItemSize = 58.dp,
-                            borderColor = Color.Black,
-                            borderWidth = 2.dp,
-                        ),
-                        controller = sketchbookController,
-                        initialSelectedIndex = 0,
-                        colorList = listOf(
-                            Color.Black,
-                            Color.Yellow,
-                            Color.Red,
-                            Color.Green,
-                            Color.Blue,
-                            Color.Cyan,
-                        ),
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        IconButton(onClick = { sketchbookController.undo() }) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            Column {
+                Sketchbook(
+                    modifier = Modifier
+                        .fillMaxHeight(0.8f)
+                        .fillMaxWidth(),
+                    controller = sketchbookController,
+                    backgroundColor = Color.Black,)
+                Spacer(modifier = Modifier.height(2.dp))
+                PaintColorPalette(
+                    modifier = Modifier
+                        .border(1.dp, Color.Black),
+                    theme = PaintColorPaletteTheme(
+                        shape = CircleShape,
+                        itemSize = 48.dp,
+                        selectedItemSize = 58.dp,
+                        borderColor = Color.Black,
+                        borderWidth = 2.dp,),
+                    controller = sketchbookController,
+                    initialSelectedIndex = 0,
+                    colorList = colorList,
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    IconButton(onClick = { sketchbookController.undo() }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBackIosNew,
+                            contentDescription = "ArrowBackIosNew"
+                        )
+                    }
+                    Column {
+                        IconButton(onClick = { expanded = true }) {
                             Icon(
-                                imageVector = Icons.Filled.ArrowBackIosNew,
-                                contentDescription = "ArrowBackIosNew"
+                                imageVector = Icons.Filled.LineWeight,
+                                contentDescription = "Line Weight"
                             )
                         }
-
-                        Column {
-                            IconButton(onClick = { expanded = true }) {
-                                Icon(
-                                    imageVector = Icons.Filled.LineWeight,
-                                    contentDescription = "Line Weight"
-                                )
-                            }
-                            DropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = { expanded = false }
-                            ) {
-                                DropdownMenuItem(
-                                    onClick = {
-                                        sketchbookController.setPaintStrokeWidth(4f)
-                                        expanded = false
-                                        selectedLineWeight = 4f
-                                    },
-                                    text = { Text("İnce") },
-                                    enabled = selectedLineWeight != 4f,
-                                    trailingIcon = {
-                                        if (selectedLineWeight == 4f)
-                                            Icon(
-                                                imageVector = Icons.Filled.Done,
-                                                contentDescription = "Done"
-                                            )
-                                    }
-
-                                )
-                                DropdownMenuItem(
-                                    onClick = {
-                                        sketchbookController.setPaintStrokeWidth(8f)
-                                        expanded = false
-                                        selectedLineWeight = 8f
-                                    },
-                                    text = { Text("Orta") },
-                                    enabled = selectedLineWeight != 8f,
-                                    trailingIcon = {
-                                        if (selectedLineWeight == 8f)
-                                            Icon(
-                                                imageVector = Icons.Filled.Done,
-                                                contentDescription = "Done"
-                                            )
-                                    }
-                                )
-                                DropdownMenuItem(
-                                    onClick = {
-                                        sketchbookController.setPaintStrokeWidth(12f)
-                                        expanded = false
-                                        selectedLineWeight = 12f
-                                    },
-                                    text = { Text("Kalın") },
-                                    enabled = selectedLineWeight != 12f,
-                                    trailingIcon = {
-                                        if (selectedLineWeight == 12f)
-                                            Icon(
-                                                imageVector = Icons.Filled.Done,
-                                                contentDescription = "Done"
-                                            )
-                                    }
-                                )
-                                DropdownMenuItem(
-                                    onClick = {
-                                        sketchbookController.setPaintStrokeWidth(16f)
-                                        expanded = false
-                                        selectedLineWeight = 16f
-                                    },
-                                    text = { Text("Çok Kalın") },
-                                    enabled = selectedLineWeight != 16f,
-                                    trailingIcon = {
-                                        if (selectedLineWeight == 16f)
-                                            Icon(
-                                                imageVector = Icons.Filled.Done,
-                                                contentDescription = "Done"
-                                            )
-                                    }
-                                )
-                            }
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                onClick = {
+                                    sketchbookController.setPaintStrokeWidth(4f)
+                                    expanded = false
+                                    selectedLineWeight = 4f },
+                                text = { Text("İnce") },
+                                enabled = selectedLineWeight != 4f,
+                                trailingIcon = {
+                                    if (selectedLineWeight == 4f)
+                                        Icon(
+                                            imageVector = Icons.Filled.Done,
+                                            contentDescription = "Done"
+                                        )
+                                }
+                            )
+                            DropdownMenuItem(
+                                onClick = {
+                                    sketchbookController.setPaintStrokeWidth(8f)
+                                    expanded = false
+                                    selectedLineWeight = 8f },
+                                text = { Text("Orta") },
+                                enabled = selectedLineWeight != 8f,
+                                trailingIcon = {
+                                    if (selectedLineWeight == 8f)
+                                        Icon(
+                                            imageVector = Icons.Filled.Done,
+                                            contentDescription = "Done"
+                                        )
+                                }
+                            )
+                            DropdownMenuItem(
+                                onClick = {
+                                    sketchbookController.setPaintStrokeWidth(12f)
+                                    expanded = false
+                                    selectedLineWeight = 12f },
+                                text = { Text("Kalın") },
+                                enabled = selectedLineWeight != 12f,
+                                trailingIcon = {
+                                    if (selectedLineWeight == 12f)
+                                        Icon(
+                                            imageVector = Icons.Filled.Done,
+                                            contentDescription = "Done"
+                                        )
+                                }
+                            )
+                            DropdownMenuItem(
+                                onClick = {
+                                    sketchbookController.setPaintStrokeWidth(16f)
+                                    expanded = false
+                                    selectedLineWeight = 16f },
+                                text = { Text("Çok Kalın") },
+                                enabled = selectedLineWeight != 16f,
+                                trailingIcon = {
+                                    if (selectedLineWeight == 16f)
+                                        Icon(
+                                            imageVector = Icons.Filled.Done,
+                                            contentDescription = "Done"
+                                        )
+                                }
+                            )
                         }
                     }
                 }
             }
+        }
+        if (viewModel.isBottomSheetShown){
+
+            SaveBottomSheet(
+                onDismissRequest = { viewModel.onEvent(DrawNoteEvent.DismissBottomSheet) },
+                onSave = { title, page ->
+                    capturedBitmap?.let { capturedBitmap ->
+                        viewModel.onEvent(DrawNoteEvent.SaveNote(
+                            noteId = noteId ?: 0,
+                            bookId = bookId,
+                            title = title,
+                            image = capturedBitmap,
+                            context = context,
+                            page = page.toInt()
+                        ))
+                    }
+
+                    navController.navigateUp()
+                },
+                oldTitle = state.note.noteTitle,
+                oldPage = state.note.page
+            )
         }
     }
 }

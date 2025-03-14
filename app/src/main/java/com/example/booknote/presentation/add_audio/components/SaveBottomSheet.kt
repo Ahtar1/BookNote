@@ -23,9 +23,11 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SaveAudioBottomSheet(
+fun SaveBottomSheet(
     onDismissRequest: () -> Unit,
-    onSave: (String, Long) -> Unit
+    onSave: (String, Long) -> Unit,
+    oldTitle: String? = null,
+    oldPage: Int? = null
 ) {
     ModalBottomSheet(
         onDismissRequest = {
@@ -39,10 +41,10 @@ fun SaveAudioBottomSheet(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             var title by remember {
-                mutableStateOf("")
+                mutableStateOf(oldTitle ?:"")
             }
             var pageNumber by remember {
-                mutableStateOf("")
+                mutableStateOf(oldPage?.toString() ?: "")
             }
 
             OutlinedTextField(
@@ -71,11 +73,12 @@ fun SaveAudioBottomSheet(
                 ),
             )
 
-
-
-            ElevatedButton(onClick = {
+            ElevatedButton(
+                modifier = Modifier.padding(bottom = 24.dp),
+                onClick = {
                 onSave(title, pageNumber.toLong())
-            }) {
+            }
+            ) {
                 Text(text ="Save")
             }
         }
