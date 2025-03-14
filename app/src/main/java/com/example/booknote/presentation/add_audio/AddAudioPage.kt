@@ -54,8 +54,7 @@ import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.booknote.domain.model.Note
-import com.example.booknote.presentation.add_audio.components.SaveAudioBottomSheet
-import com.example.booknote.presentation.util.record.NoteAudioPlayer
+import com.example.booknote.presentation.add_audio.components.SaveBottomSheet
 import com.example.booknote.presentation.util.record.NoteAudioRecorder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -197,21 +196,18 @@ fun AddAudioPage(
                 IconButton(
                     onClick = {
                         if (isRecording) {
-                            println("Audio File durdur: ${audioFile?.absolutePath}")
                             isPaused = true
                             isRecording = false
                             recorder.pause()
                         } else {
                             if(isPaused){
                                 if (audioFile != null) {
-                                    println("Audio File var: ${audioFile?.absolutePath}")
                                     continueRecording = true
                                     isPaused = false
                                     isRecording = true
                                     recorder.resume()
                                     scope.launch {
                                         while (isRecording) {
-                                            println("Recording resumes")
                                             volumeLevel = recorder.getVolumeLevel()
                                             volumeLevels.add(volumeLevel)
                                             if (volumeLevels.size > 100) {
@@ -221,7 +217,6 @@ fun AddAudioPage(
                                         }
                                     }
                                 } else{
-                                    println("Audio File yok")
                                 }
                                 recorder.resume()
                                 isPaused = false
@@ -232,7 +227,6 @@ fun AddAudioPage(
                                 continueRecording = false
                                 recorder.start(permanentFile)
                                 audioFile = permanentFile
-                                println("AudioFile oluşturuldu: ${audioFile?.absolutePath}")
                                 volumeLevels.clear()
                                 scope.launch {
                                     while (isRecording && !isPaused) {
@@ -299,7 +293,7 @@ fun AddAudioPage(
             }
 
             if (viewModel.isBottomSheetShown){
-                SaveAudioBottomSheet(
+                SaveBottomSheet(
                     onDismissRequest = { viewModel.onEvent(AddAudioEvent.DismissBottomSheet) },
                     onSave = { title, pageNumber ->
                         val finalFile = File(context.getExternalFilesDir(null), "audio_${bookId}_${title}.mp3")
@@ -307,7 +301,6 @@ fun AddAudioPage(
                         audioFile = finalFile
 
                         if (isSuccessfullyRenamed == true){
-                            println("audioFile: ${audioFile?.absolutePath}")
                             if (audioFile?.exists() == true) {
                                 viewModel.onEvent(
                                     AddAudioEvent.AddAudio(
@@ -322,14 +315,8 @@ fun AddAudioPage(
                                         )
                                     )
                                 )
-                                println("Recording saved: ${audioFile?.absolutePath}")
-                            } else {
-                                println("Recording failed")
                             }
-                        } else{
-                            println("Cant rename")
                         }
-
                         navController.navigateUp()
                     }
                 )
