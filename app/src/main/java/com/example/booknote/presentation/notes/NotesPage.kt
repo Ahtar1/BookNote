@@ -34,6 +34,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
@@ -211,19 +212,24 @@ fun NotesPage(
         },
     ) { paddingValues ->
         Column(
-            modifier = Modifier.padding(paddingValues),
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize(),
         ) {
             var query by remember { mutableStateOf("") }
             var active by remember { mutableStateOf(false) }
             Row(
                 modifier = Modifier
-                    .padding(start = 16.dp)
-                    .fillMaxWidth(),
+                    .padding(start = 8.dp, end = 8.dp)
+                    .fillMaxWidth()
+                    .height(56.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 SearchBar(
-                    modifier = Modifier.fillMaxWidth(0.9f),
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .fillMaxHeight(),
                     query = query,
                     onQueryChange = {
                         query = it
@@ -246,12 +252,15 @@ fun NotesPage(
                     },
                     content = {},
                 )
+                Spacer(modifier = Modifier.size(4.dp))
                 IconButton(
+                    modifier = Modifier.size(34.dp),
                     onClick = {
                         viewModel.onEvent(NotesEvent.OrderButtonClicked)
                     }) {
                     Icon(
-                        imageVector = Icons.Filled.Sort,
+                        modifier = Modifier.size(34.dp),
+                        imageVector = Icons.AutoMirrored.Filled.Sort,
                         contentDescription = "Sort"
                     )
                 }
@@ -259,7 +268,7 @@ fun NotesPage(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 10.dp),
+                    .padding(top = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 items(
@@ -295,7 +304,11 @@ fun NotesPage(
                                                 selectedNotes = selectedNotes + note
                                             }
                                         } else {
-                                            if (note.audioFilePath == null) {
+                                            if (note.isDrawn) {
+                                                navController.navigate(
+                                                    Page.DrawNotePage.route + "?bookId=${bookId}&noteId=${note.id}"
+                                                )
+                                            } else if (note.audioFilePath == null) {
                                                 navController.navigate(
                                                     Page.AddNotePage.route + "?bookId=${bookId}&noteId=${note.id}"
                                                 )
@@ -331,7 +344,6 @@ fun NotesPage(
                                 )
                             }
                             if (note.audioFilePath != null) {
-                                println("Audio File Path: ${note.audioFilePath}")
                                 ExoPlayer(Uri.fromFile(File(note.audioFilePath)))
                             }
                             note.imageFilePath?.let { imagePath ->

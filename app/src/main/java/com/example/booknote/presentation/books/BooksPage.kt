@@ -8,21 +8,24 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -79,6 +82,8 @@ fun BooksPage(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
+                modifier = Modifier
+                    .fillMaxWidth(),
                 title = {
                     Text(text = if (selectionMode) "${selectedBooks.size} Seçildi" else "Kitaplarım")
                 },
@@ -118,19 +123,23 @@ fun BooksPage(
         },
     ) { paddingValues ->
         Column(
-            modifier = Modifier.padding(paddingValues),
+            modifier = Modifier
+                .padding(paddingValues)
         ) {
             var query by remember { mutableStateOf("") }
             var active by remember { mutableStateOf(false) }
             Row(
                 modifier = Modifier
-                    .padding(start = 16.dp)
-                    .fillMaxWidth(),
+                    .padding(start = 8.dp, end = 8.dp)
+                    .fillMaxWidth()
+                    .height(56.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 SearchBar(
-                    modifier = Modifier.fillMaxWidth(0.9f),
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .fillMaxHeight(),
                     query = query,
                     onQueryChange = {
                         active = true
@@ -173,12 +182,15 @@ fun BooksPage(
                     },
                     content = {}
                 )
+                Spacer(modifier = Modifier.size(4.dp))
                 IconButton(
+                    modifier = Modifier.size(34.dp),
                     onClick = {
                         viewModel.onEvent(BooksEvent.OrderButtonClicked)
                     }) {
                     Icon(
-                        imageVector = Icons.Filled.Sort,
+                        modifier = Modifier.size(34.dp),
+                        imageVector = Icons.AutoMirrored.Filled.Sort,
                         contentDescription = "Sort"
                     )
                 }
@@ -281,7 +293,6 @@ fun BooksPage(
                 }
             )
         }
-
 
         if (viewModel.isDialogShown){
             AddBookDialog(
