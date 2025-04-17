@@ -5,64 +5,68 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.selection.LocalTextSelectionColors
-import androidx.compose.foundation.text.selection.TextSelectionColors
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AddLink
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.FormatBold
+import androidx.compose.material.icons.filled.FormatColorText
+import androidx.compose.material.icons.filled.FormatItalic
+import androidx.compose.material.icons.filled.FormatSize
+import androidx.compose.material.icons.filled.FormatUnderlined
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Title
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -70,12 +74,14 @@ import com.example.booknote.domain.model.Note
 import com.example.booknote.presentation.add_notes.AddNotesEvent
 import com.example.booknote.presentation.add_notes.AddNotesViewModel
 import com.example.booknote.presentation.notes.saveImageToInternalStorage
-import kotlinx.coroutines.launch
+import com.mohamedrejeb.richeditor.model.RichTextState
+import com.mohamedrejeb.richeditor.model.rememberRichTextState
+import com.mohamedrejeb.richeditor.ui.material3.RichTextEditor
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddNotePage(
     navController: NavController,
@@ -86,14 +92,14 @@ fun AddNotePage(
 
     val context = LocalContext.current
 
-    val bringIntoViewRequester = remember { BringIntoViewRequester() }
-    val coroutineScope = rememberCoroutineScope()
-    val scrollState = rememberScrollState()
-    var textFieldValue by remember { mutableStateOf(TextFieldValue()) }
+    val richTextState = rememberRichTextState()
 
     var title by remember { mutableStateOf("") }
     var pageNumber by remember { mutableStateOf("") }
     var imagePath by remember { mutableStateOf("") }
+
+    val titleSize = MaterialTheme.typography.displaySmall.fontSize
+    val subtitleSize = MaterialTheme.typography.titleLarge.fontSize
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -130,7 +136,7 @@ fun AddNotePage(
                                 Note(
                                     id = noteId ?: 0,
                                     noteTitle = title,
-                                    noteText = textFieldValue.text,
+                                    noteText = richTextState.toHtml(),
                                     imageFilePath = imagePath,
                                     page = pageNumber.toIntOrNull() ?: 0,
                                     dateCreated = LocalDateTime.now().format(
@@ -158,7 +164,7 @@ fun AddNotePage(
 
         LaunchedEffect(state.note) {
             if (noteId != null) {
-                textFieldValue = textFieldValue.copy(text = state.note.noteText.toString())
+                richTextState.setHtml(state.note.noteText.toString())
                 title = state.note.noteTitle
                 pageNumber = state.note.page.toString()
                 imagePath = state.note.imageFilePath.toString()
@@ -171,17 +177,6 @@ fun AddNotePage(
                 .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            var focusRequester: FocusRequester? = null
-
-            if(noteId == null){
-                focusRequester = remember { FocusRequester() }
-
-                LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
-                }
-            }
-
             Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -218,45 +213,276 @@ fun AddNotePage(
                 ZoomableImageWithBlurDynamic(bitmap = bitmap)
             }
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp)
-                    .verticalScroll(scrollState)
-            ) {
-                val customTextSelectionColors = TextSelectionColors(
-                    handleColor = Transparent,
-                    backgroundColor = Transparent,
-                )
+            EditorControls(
+                modifier = Modifier.fillMaxWidth().height(80.dp),
+                state = richTextState,
+                onBoldClick = {
+                    richTextState.toggleSpanStyle(SpanStyle(fontWeight = FontWeight.Bold))
+                },
+                onItalicClick = {
+                    richTextState.toggleSpanStyle(SpanStyle(fontStyle = FontStyle.Italic))
+                },
+                onUnderlineClick = {
+                    richTextState.toggleSpanStyle(SpanStyle(textDecoration = TextDecoration.Underline))
+                },
+                onTitleClick = {
+                    richTextState.toggleSpanStyle(SpanStyle(fontSize = titleSize))
+                },
+                onSubtitleClick = {
+                    richTextState.toggleSpanStyle(SpanStyle(fontSize = subtitleSize))
+                },
+                onTextColorClick = {
+                    richTextState.toggleSpanStyle(SpanStyle(color = Color.Red))
+                },
+            )
 
-                CompositionLocalProvider(
-                    LocalTextSelectionColors provides customTextSelectionColors,
-                ) {
-                    BasicTextField(
-                        value = textFieldValue,
-                        onValueChange = { newValue ->
-                            textFieldValue = newValue
-                        },
-                        minLines = 12,
-                        maxLines = 50,
-                        textStyle = TextStyle(fontSize = 30.sp),
-                        onTextLayout = {
-                            val cursorRect = it.getCursorRect(textFieldValue.selection.start)
-                            coroutineScope.launch {
-                                bringIntoViewRequester.bringIntoView(cursorRect)
-                            }
-                        },
-                        modifier = if(noteId == null) Modifier
-                            .bringIntoViewRequester(bringIntoViewRequester)
-                            .fillMaxSize()
-                            .focusRequester(focusRequester!!)
-                            else Modifier
-                            .bringIntoViewRequester(bringIntoViewRequester)
-                            .fillMaxSize()
+            RichTextEditor(
+                modifier = Modifier
+                    .fillMaxSize(),
+                state = richTextState,
+            )
+        }
+    }
+}
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun EditorControls(
+    modifier: Modifier = Modifier,
+    state: RichTextState,
+    onBoldClick: () -> Unit,
+    onItalicClick: () -> Unit,
+    onUnderlineClick: () -> Unit,
+    onTitleClick: () -> Unit,
+    onSubtitleClick: () -> Unit,
+    onTextColorClick: () -> Unit,
+) {
+    var boldSelected by rememberSaveable { mutableStateOf(false) }
+    var italicSelected by rememberSaveable { mutableStateOf(false) }
+    var underlineSelected by rememberSaveable { mutableStateOf(false) }
+    var titleSelected by rememberSaveable { mutableStateOf(false) }
+    var subtitleSelected by rememberSaveable { mutableStateOf(false) }
+    var textColorSelected by rememberSaveable { mutableStateOf(false) }
+    var linkSelected by rememberSaveable { mutableStateOf(false) }
+
+    var showLinkDialog by remember { mutableStateOf(false) }
+
+    val titleSize = MaterialTheme.typography.displaySmall.fontSize
+    val subtitleSize = MaterialTheme.typography.titleLarge.fontSize
+
+    LaunchedEffect(state.currentSpanStyle) {
+        boldSelected = state.currentSpanStyle.fontWeight == FontWeight.Bold
+        italicSelected = state.currentSpanStyle.fontStyle == FontStyle.Italic
+        underlineSelected = state.currentSpanStyle.textDecoration == TextDecoration.Underline
+        titleSelected = state.currentSpanStyle.fontSize == titleSize
+        subtitleSelected = state.currentSpanStyle.fontSize == subtitleSize
+        textColorSelected = state.currentSpanStyle.color == Color.Red
+    }
+
+    AnimatedVisibility(visible = showLinkDialog) {
+        LinkDialog(
+            onDismissRequest = {
+                showLinkDialog = false
+                linkSelected = false
+            },
+            onConfirmation = { linkText, link ->
+                state.addLink(
+                    text = linkText,
+                    url = link
+                )
+                showLinkDialog = false
+                linkSelected = false
+            }
+        )
+    }
+
+    FlowRow(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(all = 10.dp)
+            .padding(bottom = 24.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        ControlWrapper(
+            selected = boldSelected,
+            onChangeClick = { boldSelected = it },
+            onClick = onBoldClick
+        ) {
+            Icon(
+                imageVector = Icons.Default.FormatBold,
+                contentDescription = "Bold Control",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+        }
+        ControlWrapper(
+            selected = italicSelected,
+            onChangeClick = { italicSelected = it },
+            onClick = onItalicClick
+        ) {
+            Icon(
+                imageVector = Icons.Default.FormatItalic,
+                contentDescription = "Italic Control",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+        }
+        ControlWrapper(
+            selected = underlineSelected,
+            onChangeClick = { underlineSelected = it },
+            onClick = onUnderlineClick
+        ) {
+            Icon(
+                imageVector = Icons.Default.FormatUnderlined,
+                contentDescription = "Underline Control",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+        }
+        ControlWrapper(
+            selected = titleSelected,
+            onChangeClick = {
+                titleSelected = it
+                if (subtitleSelected) subtitleSelected = false
+                            },
+            onClick = onTitleClick
+        ) {
+            Icon(
+                imageVector = Icons.Default.Title,
+                contentDescription = "Title Control",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+        }
+        ControlWrapper(
+            selected = subtitleSelected,
+            onChangeClick = {
+                subtitleSelected = it
+                if (titleSelected) titleSelected = false
+                            },
+            onClick = onSubtitleClick
+        ) {
+            Icon(
+                imageVector = Icons.Default.FormatSize,
+                contentDescription = "Subtitle Control",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+        }
+        ControlWrapper(
+            selected = textColorSelected,
+            onChangeClick = { textColorSelected = it },
+            onClick = onTextColorClick
+        ) {
+            Icon(
+                imageVector = Icons.Default.FormatColorText,
+                contentDescription = "Text Color Control",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+        }
+        ControlWrapper(
+            selected = linkSelected,
+            onChangeClick = { linkSelected = it },
+            onClick = { showLinkDialog = true }
+        ) {
+            Icon(
+                imageVector = Icons.Default.AddLink,
+                contentDescription = "Link Control",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+        }
+        /*
+        ControlWrapper(
+            selected = true,
+            selectedColor = MaterialTheme.colorScheme.tertiary,
+            onChangeClick = { },
+            onClick = onExportClick
+        ) {
+            Icon(
+                imageVector = Icons.Default.Save,
+                contentDescription = "Export Control",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+        }
+
+         */
+    }
+}
+
+@Composable
+fun LinkDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmation: (String, String) -> Unit
+){
+    var linkText by remember { mutableStateOf(TextFieldValue()) }
+    var link by remember { mutableStateOf(TextFieldValue()) }
+
+    Dialog(
+        onDismissRequest = onDismissRequest
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+        ) {
+            OutlinedTextField(
+                value = linkText,
+                onValueChange = { linkText = it },
+                label = { Text("Link Text") }
+            )
+            OutlinedTextField(
+                value = link,
+                onValueChange = { link = it },
+                label = { Text("Link") }
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                IconButton(onClick = onDismissRequest) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close Link Dialog"
+                    )
+                }
+                IconButton(onClick = {
+                    onConfirmation(linkText.text, link.text)
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Save,
+                        contentDescription = "Save Link"
                     )
                 }
             }
         }
+    }
+
+}
+
+@Composable
+fun ControlWrapper(
+    selected: Boolean,
+    selectedColor: Color = MaterialTheme.colorScheme.primary,
+    unselectedColor: Color = MaterialTheme.colorScheme.inversePrimary,
+    onChangeClick: (Boolean) -> Unit,
+    onClick: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(size = 6.dp))
+            .clickable {
+                onClick()
+                onChangeClick(!selected)
+            }
+            .background(
+                if (selected) selectedColor
+                else unselectedColor
+            )
+            .border(
+                width = 1.dp,
+                color = Color.LightGray,
+                shape = RoundedCornerShape(size = 6.dp)
+            )
+            .padding(all = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        content()
     }
 }
 

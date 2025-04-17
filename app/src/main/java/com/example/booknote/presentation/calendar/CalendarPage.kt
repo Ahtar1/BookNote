@@ -1,6 +1,6 @@
 package com.example.booknote.presentation.calendar
 
-import android.graphics.BitmapFactory
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -22,7 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,11 +32,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -46,9 +42,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.example.booknote.presentation.util.Page
 import com.example.booknote.presentation.util.extension.noRippleClickable
+import com.example.booknote.presentation.util.record.ExoPlayer
 import com.example.booknote.presentation.util.record.NoteAudioPlayer
+import com.mohamedrejeb.richeditor.ui.material3.RichText
 import io.github.boguszpawlowski.composecalendar.CalendarState
 import io.github.boguszpawlowski.composecalendar.SelectableCalendar
 import io.github.boguszpawlowski.composecalendar.day.Day
@@ -94,29 +93,35 @@ fun CalendarPage(
             initialSelectionMode = SelectionMode.Single
         )
 
-        Column {
-            SelectableCalendar(
-                modifier = Modifier
-                    .padding(it),
-                dayContent = { day ->
-                    DayContent(day = day, viewModel.dates, calendarState, viewModel)
-                },
-                calendarState = calendarState
-            )
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp)
-            ) {
-
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+        ) {
+            item {
+                SelectableCalendar(
+                    modifier = Modifier
+                        .padding(it),
+                    dayContent = { day ->
+                        DayContent(day = day, viewModel.dates, calendarState, viewModel)
+                    },
+                    calendarState = calendarState
+                )
+            }
+            if (viewModel.notes.value.isEmpty()){
                 item {
                     Text(
-                        text = "Notes: ${viewModel.notes.value.size}",
-                        style = TextStyle(fontSize = 20.sp)
+                        text = "No notes for this day",
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(),
                     )
                 }
-
+            } else{
                 items(viewModel.notes.value){ note ->
+                    val richTextState = viewModel.getRichTextState(note)
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -139,9 +144,8 @@ fun CalendarPage(
                         ) {
                             Column(
                                 modifier = Modifier
-                                    .fillMaxSize(0.9f)
+                                    .fillMaxSize()
                                     .padding(16.dp)
-                                    .padding(end = 32.dp)
                             ) {
                                 Text(
                                     text = note.noteTitle,
@@ -152,28 +156,21 @@ fun CalendarPage(
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 if (note.noteText != null) {
-                                    Text(
-                                        text = note.noteText,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        maxLines = 10,
-                                        overflow = TextOverflow.Ellipsis
+                                    RichText(
+                                        modifier = Modifier
+                                            .fillMaxSize(),
+                                        state = richTextState,
+                                        lineHeight = 36.sp,
                                     )
                                 }
                                 if (note.audioFilePath != null) {
-                                    ElevatedButton(onClick = {
-                                        val audioFile = File(note.audioFilePath)
-                                        player.playFile(audioFile)
-                                    }) {
-                                        Text(text = "Play Audio Note")
-                                    }
+                                    ExoPlayer(Uri.fromFile(File(note.audioFilePath)))
                                 }
                                 note.imageFilePath?.let { imagePath ->
                                     val imageFile = File(imagePath)
                                     if (imageFile.exists()) {
-                                        val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
                                         Image(
-                                            bitmap = bitmap.asImageBitmap(),
+                                            painter = rememberAsyncImagePainter(model = imageFile),
                                             contentDescription = null,
                                             modifier = Modifier
                                                 .size(300.dp)
@@ -185,8 +182,9 @@ fun CalendarPage(
                         }
                     }
                 }
-
             }
+
+
         }
 
 

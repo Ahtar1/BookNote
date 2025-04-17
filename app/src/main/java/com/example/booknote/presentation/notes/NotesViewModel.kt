@@ -1,7 +1,6 @@
 package com.example.booknote.presentation.notes
 
 import android.content.Context
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.booknote.domain.use_case.BookUseCases
 import com.example.booknote.domain.use_case.NoteUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
@@ -20,8 +21,8 @@ class NotesViewModel @Inject constructor(
     private val bookUseCases: BookUseCases
 ) : ViewModel() {
 
-    private val _state = mutableStateOf(NotesState())
-    var state: State<NotesState> = _state
+    private val _state = MutableStateFlow(NotesState())
+    val state = _state.asStateFlow()
     var isDialogShown by mutableStateOf(false)
         private set
 

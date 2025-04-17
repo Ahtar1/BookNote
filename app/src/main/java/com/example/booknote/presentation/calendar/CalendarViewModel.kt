@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.booknote.domain.model.Note
 import com.example.booknote.domain.use_case.NoteUseCases
+import com.mohamedrejeb.richeditor.model.RichTextState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -23,6 +24,9 @@ class CalendarViewModel @Inject constructor(
 
     private val _notes = mutableStateOf<List<Note>>(emptyList())
     val notes: State<List<Note>> = _notes
+
+    private val richTextStateMap = mutableMapOf<String, RichTextState>()
+
     init {
         viewModelScope.launch {
             val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
@@ -35,6 +39,14 @@ class CalendarViewModel @Inject constructor(
                 DateTimeFormatter.ofPattern("dd-MM-yyyy")
             )).collectLatest { notesList ->
                 _notes.value = notesList
+            }
+        }
+    }
+
+    fun getRichTextState(note: Note): RichTextState {
+        return richTextStateMap.getOrPut(note.id.toString()) {
+            RichTextState().apply {
+                setHtml(note.noteText ?: "")
             }
         }
     }

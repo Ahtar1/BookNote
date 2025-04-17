@@ -105,4 +105,6 @@ dependencies {
 
     implementation(libs.exoplayer)
 
+    implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc05")
+
 }
