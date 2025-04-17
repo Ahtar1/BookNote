@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.booknote.R
@@ -201,25 +202,20 @@ fun BooksPage(
                     .padding(top = 16.dp),
                 columns = GridCells.Fixed(2),
                 content = {
-                    items(state.books) { book ->
-                        Box(
-                            modifier = Modifier
-                                .size(200.dp)
-                                .pointerInput(Unit) {
-                                    detectTapGestures(
-                                        onLongPress = {
-                                            selectionMode = true
-                                            if (selectedBooks.contains(book)) {
-                                                selectedBooks = selectedBooks - book
-                                                if (selectedBooks.isEmpty()) {
-                                                    selectionMode = false
-                                                }
-                                            } else {
-                                                selectedBooks = selectedBooks + book
-                                            }
-                                        },
-                                        onTap = {
-                                            if(selectionMode){
+                    items(
+                        items= state.books,
+                        key = { book -> book.id },
+                    ) { book ->
+                        Column(
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(200.dp)
+                                    .pointerInput(Unit) {
+                                        detectTapGestures(
+                                            onLongPress = {
+                                                selectionMode = true
                                                 if (selectedBooks.contains(book)) {
                                                     selectedBooks = selectedBooks - book
                                                     if (selectedBooks.isEmpty()) {
@@ -228,45 +224,59 @@ fun BooksPage(
                                                 } else {
                                                     selectedBooks = selectedBooks + book
                                                 }
-                                            } else{
-                                                navController.navigate(
-                                                    Page.NotesPage.route +
-                                                            "?bookId=${book.id}&bookTitle=${book.title}"
-                                                )
+                                            },
+                                            onTap = {
+                                                if(selectionMode){
+                                                    if (selectedBooks.contains(book)) {
+                                                        selectedBooks = selectedBooks - book
+                                                        if (selectedBooks.isEmpty()) {
+                                                            selectionMode = false
+                                                        }
+                                                    } else {
+                                                        selectedBooks = selectedBooks + book
+                                                    }
+                                                } else{
+                                                    navController.navigate(
+                                                        Page.NotesPage.route +
+                                                                "?bookId=${book.id}&bookTitle=${book.title}"
+                                                    )
+                                                }
                                             }
-                                        }
-                                    )
-                                }
-                        ) {
-                            Image(
-                                modifier = Modifier.size(200.dp),
-                                painter = painterResource(id = R.drawable.blue_book),
-                                contentDescription = "Books Grid",
-                            )
-                            Text(
-                                text = book.title,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-
-                            if (selectionMode && selectedBooks.contains(book)) {
-                                Canvas(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .align(Alignment.Center),
-                                    onDraw = {
-                                        drawRect(
-                                            color = Color(0x80000000), // Semi-transparent overlay
-                                            size = size
                                         )
                                     }
+                            ) {
+                                Image(
+                                    modifier = Modifier.size(200.dp),
+                                    painter = painterResource(id = R.drawable.blue_book),
+                                    contentDescription = "Books Grid",
                                 )
-                                Icon(
-                                    imageVector = Icons.Filled.Check,
-                                    contentDescription = "Selected",
-                                    tint = Color.White,
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
+
+                                if (selectionMode && selectedBooks.contains(book)) {
+                                    Canvas(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .align(Alignment.Center),
+                                        onDraw = {
+                                            drawRect(
+                                                color = Color(0x80000000), // Semi-transparent overlay
+                                                size = size
+                                            )
+                                        }
+                                    )
+                                    Icon(
+                                        imageVector = Icons.Filled.Check,
+                                        contentDescription = "Selected",
+                                        tint = Color.White,
+                                        modifier = Modifier.align(Alignment.Center)
+                                    )
+                                }
                             }
+                            Text(
+                                text = book.title,
+                                fontSize = 20.sp,
+                                modifier = Modifier
+                                    .align(Alignment.CenterHorizontally)
+                            )
                         }
                     }
                 },
