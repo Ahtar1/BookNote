@@ -44,7 +44,7 @@ fun SaveBottomSheet(
                 mutableStateOf(oldTitle ?:"")
             }
             var pageNumber by remember {
-                mutableStateOf(oldPage?.toString() ?: "")
+                mutableStateOf((oldPage ?: "").toString())
             }
 
             OutlinedTextField(
@@ -61,7 +61,7 @@ fun SaveBottomSheet(
                     .padding(horizontal = 8.dp),
                 maxLines = 1,
                 label = { Text("Page Number") },
-                value = pageNumber,
+                value = if (pageNumber == "0" ) "" else pageNumber,
                 onValueChange = { newText ->
                     if (newText.all { it.isDigit() }) {
                         pageNumber = newText
