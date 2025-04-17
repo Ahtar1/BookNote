@@ -71,8 +71,8 @@ fun AddAudioPage(
     viewModel: AddAudioViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current.applicationContext
-    val recorder by lazy {
-        NoteAudioRecorder(context)
+    val recorder by remember {
+        mutableStateOf(NoteAudioRecorder(context))
     }
 
     var audioFile by remember { mutableStateOf<File?>(null) }
