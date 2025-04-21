@@ -5,4 +5,6 @@ import com.example.booknote.domain.model.Note
 sealed class AddNotesEvent {
     data class AddNote(val note: Note): AddNotesEvent()
     data class GetNote(val noteId: Long): AddNotesEvent()
+    data class ChangeColor(val color: Long): AddNotesEvent()
+    data object ToggleColorPicker: AddNotesEvent()
 }

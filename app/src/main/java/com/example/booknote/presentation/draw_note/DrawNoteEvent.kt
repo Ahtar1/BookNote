@@ -9,6 +9,7 @@ sealed class DrawNoteEvent {
         val bookId: Long,
         val title: String,
         val page: Int,
+        val color: Long,
         val image: Bitmap,
         val context: Context
     ): DrawNoteEvent()

@@ -304,7 +304,7 @@ fun NotesPage(
                                 )
                             },
                         colors = CardDefaults.cardColors(
-                            containerColor = if (isSelected) Color(0xffBBDEFB) else Color(0xffD8EFD3)
+                            containerColor = if (isSelected) Color(0xffBBDEFB) else Color(note.color),
                         ),
                         shape = RoundedCornerShape(4.dp)
                     ) {

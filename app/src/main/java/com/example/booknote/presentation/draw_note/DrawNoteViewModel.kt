@@ -50,7 +50,8 @@ class DrawNoteViewModel @Inject constructor(
                                     DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
                                 ),
                                 page = event.page,
-                                isDrawn = true
+                                isDrawn = true,
+                                color = event.color
                             )
                         )
                     } else {
@@ -65,7 +66,8 @@ class DrawNoteViewModel @Inject constructor(
                                     DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
                                 ),
                                 page = event.page,
-                                isDrawn = true
+                                isDrawn = true,
+                                color = event.color
                             )
                         )
                     }

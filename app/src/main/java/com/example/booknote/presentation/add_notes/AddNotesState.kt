@@ -9,6 +9,7 @@ data class AddNotesState(
         noteTitle = "",
         imageFilePath = "",
         page = 0,
+        color = 0xffD8EFD3,
         dateCreated = "",
         favorite = false
     ),

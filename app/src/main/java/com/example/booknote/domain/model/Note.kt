@@ -21,6 +21,7 @@ data class Note(
     val audioFilePath: String? = null,
     val imageFilePath: String? = null,
     val page: Int,
+    val color: Long = 0xffD8EFD3,
     val dateCreated: String,
     val favorite: Boolean = false,
     val isDrawn: Boolean = false,

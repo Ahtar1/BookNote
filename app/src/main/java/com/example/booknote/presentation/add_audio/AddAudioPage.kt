@@ -294,7 +294,7 @@ fun AddAudioPage(
             if (viewModel.isBottomSheetShown){
                 SaveBottomSheet(
                     onDismissRequest = { viewModel.onEvent(AddAudioEvent.DismissBottomSheet) },
-                    onSave = { title, pageNumber ->
+                    onSave = { title, pageNumber, newColor ->
                         val finalFile = File(context.getExternalFilesDir(null), "audio_${bookId}_${title}.mp3")
                         val isSuccessfullyRenamed = audioFile?.renameTo(finalFile)
                         audioFile = finalFile
@@ -310,14 +310,16 @@ fun AddAudioPage(
                                             dateCreated = LocalDateTime.now().format(
                                                 DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
                                             ),
-                                            bookId = bookId
+                                            bookId = bookId,
+                                            color = newColor,
                                         )
                                     )
                                 )
                             }
                         }
                         navController.navigateUp()
-                    }
+                    },
+                    oldTitle = null,
                 )
             }
         }

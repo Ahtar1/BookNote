@@ -21,12 +21,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddLink
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ColorLens
+import androidx.compose.material.icons.filled.Colorize
 import androidx.compose.material.icons.filled.FormatBold
 import androidx.compose.material.icons.filled.FormatColorText
 import androidx.compose.material.icons.filled.FormatItalic
@@ -43,6 +47,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -57,6 +63,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
@@ -77,6 +84,7 @@ import com.example.booknote.presentation.notes.saveImageToInternalStorage
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.ui.material3.RichTextEditor
+import com.mohamedrejeb.richeditor.ui.material3.RichTextEditorDefaults
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -113,6 +121,9 @@ fun AddNotePage(
     Scaffold(
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors().copy(
+                    containerColor = Color(viewModel.state.value.note.color)
+                ),
                 title = {
                     Text(text = "Add Note")
                 },
@@ -125,6 +136,11 @@ fun AddNotePage(
                     }
                 },
                 actions = {
+                    IconButton(onClick = {
+                        viewModel.onEvent(AddNotesEvent.ToggleColorPicker)
+                    }) {
+                        Icon(imageVector = Icons.Filled.ColorLens, contentDescription = "Note Color")
+                    }
                     IconButton(onClick = {
                         launcher.launch("image/*")
                     }) {
@@ -142,6 +158,7 @@ fun AddNotePage(
                                     dateCreated = LocalDateTime.now().format(
                                         DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
                                     ),
+                                    color = viewModel.state.value.note.color,
                                     bookId = bookId
                                 )
                             )
@@ -174,9 +191,35 @@ fun AddNotePage(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(paddingValues)
+                .background(
+                    Color(viewModel.state.value.note.color)
+                ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            if (viewModel.isColorPickerShown) {
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .background(Color(viewModel.state.value.note.color))
+                        .border(1.dp, Color.LightGray )
+                ) {
+                    items(viewModel.colorList) { color ->
+                        Box(
+                            modifier = Modifier
+                                .size(50.dp)
+                                .background(Color(color))
+                                .clickable {
+                                    viewModel.onEvent(AddNotesEvent.ChangeColor(color))
+                                    viewModel.onEvent(AddNotesEvent.ToggleColorPicker)
+                                }
+                        )
+                    }
+                }
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -240,6 +283,9 @@ fun AddNotePage(
                 modifier = Modifier
                     .fillMaxSize(),
                 state = richTextState,
+                colors = RichTextEditorDefaults.richTextEditorColors(
+                    containerColor = Color(viewModel.state.value.note.color),
+                ),
             )
         }
     }

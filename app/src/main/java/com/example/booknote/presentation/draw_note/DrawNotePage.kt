@@ -262,7 +262,7 @@ fun DrawNotePage(
 
             SaveBottomSheet(
                 onDismissRequest = { viewModel.onEvent(DrawNoteEvent.DismissBottomSheet) },
-                onSave = { title, page ->
+                onSave = { title, page, newColor ->
                     capturedBitmap?.let { capturedBitmap ->
                         viewModel.onEvent(DrawNoteEvent.SaveNote(
                             noteId = noteId ?: 0,
@@ -270,14 +270,16 @@ fun DrawNotePage(
                             title = title,
                             image = capturedBitmap,
                             context = context,
-                            page = page.toInt()
+                            page = page.toInt(),
+                            color = newColor
                         ))
                     }
 
                     navController.navigateUp()
                 },
                 oldTitle = state.note.noteTitle,
-                oldPage = state.note.page
+                oldPage = state.note.page,
+                oldColor = state.note.color,
             )
         }
     }
