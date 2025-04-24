@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.More
 import androidx.compose.material.icons.filled.PauseCircle
 import androidx.compose.material.icons.filled.StopCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -55,6 +56,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.booknote.domain.model.Note
 import com.example.booknote.presentation.add_audio.components.SaveBottomSheet
+import com.example.booknote.presentation.add_notes.components.TagsBottomSheet
+import com.example.booknote.presentation.draw_note.DrawNoteEvent
 import com.example.booknote.presentation.util.record.NoteAudioRecorder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -74,6 +77,8 @@ fun AddAudioPage(
     val recorder by remember {
         mutableStateOf(NoteAudioRecorder(context))
     }
+
+    var tagsBottomSheetExpanded by remember { mutableStateOf(false) }
 
     var audioFile by remember { mutableStateOf<File?>(null) }
     var volumeLevel by remember { mutableStateOf(0f) }
@@ -111,7 +116,17 @@ fun AddAudioPage(
                             contentDescription = "Back"
                         )
                     }
-                }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        tagsBottomSheetExpanded = true
+                    }) {
+                        Icon(
+                            imageVector = Icons.Filled.More,
+                            contentDescription = "Add Tags"
+                        )
+                    }
+                },
             )
         },
     ) { paddingValues ->
@@ -312,6 +327,7 @@ fun AddAudioPage(
                                             ),
                                             bookId = bookId,
                                             color = newColor,
+                                            tags = viewModel.state.value.note.tags,
                                         )
                                     )
                                 )
@@ -320,6 +336,16 @@ fun AddAudioPage(
                         navController.navigateUp()
                     },
                     oldTitle = null,
+                )
+            }
+            if(tagsBottomSheetExpanded){
+                TagsBottomSheet(
+                    onDismissRequest = { tagsBottomSheetExpanded = false},
+                    onSave = { tags ->
+                        viewModel.onEvent(AddAudioEvent.SaveTags(tags, null))
+                        tagsBottomSheetExpanded = false
+                    },
+                    tags = viewModel.state.value.note.tags,
                 )
             }
         }
