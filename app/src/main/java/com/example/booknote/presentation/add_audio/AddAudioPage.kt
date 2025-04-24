@@ -57,7 +57,6 @@ import androidx.navigation.NavController
 import com.example.booknote.domain.model.Note
 import com.example.booknote.presentation.add_audio.components.SaveBottomSheet
 import com.example.booknote.presentation.add_notes.components.TagsBottomSheet
-import com.example.booknote.presentation.draw_note.DrawNoteEvent
 import com.example.booknote.presentation.util.record.NoteAudioRecorder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

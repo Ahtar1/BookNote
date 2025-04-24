@@ -109,8 +109,6 @@ fun AddNotePage(
     var pageNumber by remember { mutableStateOf("") }
     var imagePath by remember { mutableStateOf("") }
 
-    var tag by remember { mutableStateOf("") }
-
     var topAppBarColor by remember { mutableStateOf(noteColor ?: 0xffD8EFD3) }
 
     val titleSize = MaterialTheme.typography.displaySmall.fontSize

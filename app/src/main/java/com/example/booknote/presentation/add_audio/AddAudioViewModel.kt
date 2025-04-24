@@ -7,8 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.booknote.domain.use_case.NoteUseCases
-import com.example.booknote.presentation.add_notes.AddNotesEvent
-import com.example.booknote.presentation.add_notes.AddNotesState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,8 +19,8 @@ class AddAudioViewModel @Inject constructor(
     var isBottomSheetShown by mutableStateOf(false)
         private set
 
-    private val _state = mutableStateOf(AddNotesState())
-    var state: State<AddNotesState> = _state
+    private val _state = mutableStateOf(AddAudioState())
+    var state: State<AddAudioState> = _state
 
     fun onEvent(event: AddAudioEvent) {
         when(event){

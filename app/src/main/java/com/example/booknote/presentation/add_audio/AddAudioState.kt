@@ -2,7 +2,7 @@ package com.example.booknote.presentation.add_audio
 
 import com.example.booknote.domain.model.Note
 
-data class AddNAudioState(
+data class AddAudioState(
     val note: Note = Note(
         id = 0,
         bookId = 0,
