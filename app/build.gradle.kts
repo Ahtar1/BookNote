@@ -107,4 +107,6 @@ dependencies {
 
     implementation("com.mohamedrejeb.richeditor:richeditor-compose:1.0.0-rc05")
 
+    implementation ("com.google.code.gson:gson:2.10.1")
+
 }

@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.LineWeight
+import androidx.compose.material.icons.filled.More
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -51,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.booknote.presentation.add_audio.components.SaveBottomSheet
+import com.example.booknote.presentation.add_notes.components.TagsBottomSheet
 import com.example.booknote.presentation.notes.saveImageToInternalStorage
 import io.getstream.sketchbook.PaintColorPalette
 import io.getstream.sketchbook.PaintColorPaletteTheme
@@ -75,6 +77,8 @@ fun DrawNotePage(
     var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var imagePath by remember { mutableStateOf("") }
     val colorList by remember { mutableStateOf(listOf(Color.Black, Color.Red, Color.Blue, Color.Green, Color.Yellow, Color.Magenta, Color.Cyan, Color.White)) }
+
+    var tagsBottomSheetExpanded by remember { mutableStateOf(false) }
 
     val state = viewModel.state.value
 
@@ -125,6 +129,16 @@ fun DrawNotePage(
                     }
                 },
                 actions = {
+                    IconButton(
+                        onClick = {
+                            tagsBottomSheetExpanded = true
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.More,
+                            contentDescription = "Add Tag"
+                        )
+                    }
                     IconButton(onClick = {
                         launcher.launch("image/*")
                     }) {
@@ -258,6 +272,18 @@ fun DrawNotePage(
                 }
             }
         }
+
+        if (tagsBottomSheetExpanded){
+            TagsBottomSheet(
+                onDismissRequest = { tagsBottomSheetExpanded = false},
+                onSave = { tags ->
+                    viewModel.onEvent(DrawNoteEvent.SaveTags(tags, noteId))
+                    tagsBottomSheetExpanded = false
+                },
+                tags = viewModel.state.value.note.tags,
+            )
+        }
+
         if (viewModel.isBottomSheetShown){
 
             SaveBottomSheet(

@@ -51,7 +51,8 @@ class DrawNoteViewModel @Inject constructor(
                                 ),
                                 page = event.page,
                                 isDrawn = true,
-                                color = event.color
+                                color = event.color,
+                                tags = state.value.note.tags
                             )
                         )
                     } else {
@@ -67,7 +68,8 @@ class DrawNoteViewModel @Inject constructor(
                                 ),
                                 page = event.page,
                                 isDrawn = true,
-                                color = event.color
+                                color = event.color,
+                                tags = state.value.note.tags
                             )
                         )
                     }
@@ -87,6 +89,28 @@ class DrawNoteViewModel @Inject constructor(
                     _state.value = _state.value.copy(
                         note = noteUseCases.getNote(event.noteId)
                     )
+                }
+            }
+            is DrawNoteEvent.SaveTags -> {
+                viewModelScope.launch {
+                    if (event.noteId != null) {
+                        noteUseCases.updateNote(
+                            state.value.note.copy(
+                                tags = event.tags
+                            )
+                        )
+                        _state.value = _state.value.copy(
+                            note = state.value.note.copy(
+                                tags = event.tags
+                            )
+                        )
+                    } else {
+                        _state.value = _state.value.copy(
+                            note = state.value.note.copy(
+                                tags = event.tags
+                            )
+                        )
+                    }
                 }
             }
         }

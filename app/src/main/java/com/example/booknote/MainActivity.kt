@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
                             BooksPage(navController)
                         }
                         composable(
-                            route = Page.AddNotePage.route + "?bookId={bookId}&noteId={noteId}",
+                            route = Page.AddNotePage.route + "?bookId={bookId}&noteId={noteId}&noteColor={noteColor}",
                             arguments = listOf(
                                 navArgument(name = "bookId") {
                                     type = NavType.LongType
@@ -57,12 +57,17 @@ class MainActivity : ComponentActivity() {
                                 navArgument(name = "noteId") {
                                     nullable = true
                                     defaultValue = null
+                                },
+                                navArgument(name = "noteColor") {
+                                    nullable = true
+                                    defaultValue = null
                                 }
                             )
                         ) {
                             val bookId = it.arguments?.getLong("bookId") ?: -1
                             val noteId = it.arguments?.getString("noteId")?.toLong()
-                            AddNotePage(navController, bookId, noteId)
+                            val noteColor = it.arguments?.getLong("noteColor")
+                            AddNotePage(navController, bookId, noteId, noteColor)
                         }
                         composable(
                             route = Page.NotesPage.route +

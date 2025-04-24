@@ -17,6 +17,7 @@ sealed class DrawNoteEvent {
         val noteId: Long
     ): DrawNoteEvent(
     )
+    data class SaveTags(val tags: List<String>, val noteId: Long?): DrawNoteEvent()
     data object SaveButtonClicked: DrawNoteEvent()
     data object DismissBottomSheet: DrawNoteEvent()
 }
