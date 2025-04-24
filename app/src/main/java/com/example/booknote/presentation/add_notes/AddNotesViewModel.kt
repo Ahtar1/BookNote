@@ -42,7 +42,6 @@ class AddNotesViewModel @Inject constructor(
 
     fun onEvent(event: AddNotesEvent) {
         when(event){
-
             is AddNotesEvent.AddNote -> {
                 viewModelScope.launch {
                     if (event.note.id == 0L) {
@@ -66,8 +65,30 @@ class AddNotesViewModel @Inject constructor(
                     )
                 )
             }
-            AddNotesEvent.ToggleColorPicker -> {
+            is AddNotesEvent.ToggleColorPicker -> {
                 isColorPickerShown = !isColorPickerShown
+            }
+            is AddNotesEvent.SaveTags -> {
+                viewModelScope.launch {
+                    if (event.noteId != null) {
+                        noteUseCases.updateNote(
+                            state.value.note.copy(
+                                tags = event.tags
+                            )
+                        )
+                        _state.value = _state.value.copy(
+                            note = state.value.note.copy(
+                                tags = event.tags
+                            )
+                        )
+                    } else {
+                        _state.value = _state.value.copy(
+                            note = state.value.note.copy(
+                                tags = event.tags
+                            )
+                        )
+                    }
+                }
             }
         }
     }

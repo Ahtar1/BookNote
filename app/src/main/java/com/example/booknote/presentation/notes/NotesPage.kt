@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -304,7 +305,7 @@ fun NotesPage(
                                 )
                             },
                         colors = CardDefaults.cardColors(
-                            containerColor = if (isSelected) Color(0xffBBDEFB) else Color(note.color),
+                            containerColor = if (isSelected) Color.LightGray else Color(note.color),
                         ),
                         shape = RoundedCornerShape(4.dp)
                     ) {
@@ -332,6 +333,36 @@ fun NotesPage(
                                     maxLines = 10,
                                     overflow = TextOverflow.Ellipsis
                                 )
+                            }
+
+                            LazyRow(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                items(note.tags){
+                                    Card(
+                                        modifier = Modifier
+                                            .padding(end = 4.dp)
+                                            .height(30.dp),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = Color(0xff54b7de),
+                                        ),
+                                        shape = RoundedCornerShape(16.dp)
+                                    ) {
+                                        Text(
+                                            modifier = Modifier
+                                                .padding(vertical = 4.dp, horizontal = 8.dp),
+                                            text = it,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
                             }
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -441,7 +472,7 @@ fun NotesPage(
                     contentAlignment = Alignment.TopEnd,
                     modifier = Modifier
                         .fillMaxWidth(0.80f)
-                        .fillMaxHeight(0.5f)
+                        .fillMaxHeight(0.4f)
                         .border(
                             width = 1.dp,
                             color = Color.Black,
@@ -462,18 +493,60 @@ fun NotesPage(
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(
-                                text = state.book.title
-                            )
-                            Text(
-                                text = state.book.author
-                            )
-                            Text(
-                                text = state.book.language
-                            )
-                            Text(
-                                text = state.book.publisher
-                            )
+                            Row {
+                                Text(
+                                    text = "Title:"
+                                )
+
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                Text(
+                                    text = state.book.title
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Row {
+                                Text(
+                                    text = "Author:"
+                                )
+
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                Text(
+                                    text = state.book.author
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Row {
+                                Text(
+                                    text = "Language:"
+                                )
+
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                Text(
+                                    text = state.book.language
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Row {
+                                Text(
+                                    text = "Publisher:"
+                                )
+
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                Text(
+                                    text = state.book.publisher
+                                )
+                            }
+
                         }
                     }
                     IconButton(

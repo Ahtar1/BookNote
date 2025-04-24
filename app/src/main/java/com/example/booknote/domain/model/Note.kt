@@ -24,6 +24,7 @@ data class Note(
     val color: Long = 0xffD8EFD3,
     val dateCreated: String,
     val favorite: Boolean = false,
+    val tags: List<String> = emptyList(),
     val isDrawn: Boolean = false,
     @ColumnInfo(index = true) val bookId: Long
 )

@@ -2,10 +2,10 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,26 +19,30 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AddLink
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ColorLens
-import androidx.compose.material.icons.filled.Colorize
 import androidx.compose.material.icons.filled.FormatBold
 import androidx.compose.material.icons.filled.FormatColorText
 import androidx.compose.material.icons.filled.FormatItalic
 import androidx.compose.material.icons.filled.FormatSize
 import androidx.compose.material.icons.filled.FormatUnderlined
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.More
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Title
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -47,7 +51,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -63,7 +66,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
@@ -71,7 +73,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -80,6 +81,7 @@ import androidx.navigation.NavController
 import com.example.booknote.domain.model.Note
 import com.example.booknote.presentation.add_notes.AddNotesEvent
 import com.example.booknote.presentation.add_notes.AddNotesViewModel
+import com.example.booknote.presentation.add_notes.components.TagsBottomSheet
 import com.example.booknote.presentation.notes.saveImageToInternalStorage
 import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
@@ -95,6 +97,7 @@ fun AddNotePage(
     navController: NavController,
     bookId: Long,
     noteId: Long?,
+    noteColor: Long?,
     viewModel: AddNotesViewModel = hiltViewModel()
 ) {
 
@@ -106,8 +109,15 @@ fun AddNotePage(
     var pageNumber by remember { mutableStateOf("") }
     var imagePath by remember { mutableStateOf("") }
 
+    var tag by remember { mutableStateOf("") }
+
+    var topAppBarColor by remember { mutableStateOf(noteColor ?: 0xffD8EFD3) }
+
     val titleSize = MaterialTheme.typography.displaySmall.fontSize
     val subtitleSize = MaterialTheme.typography.titleLarge.fontSize
+
+    var dropdownMenuExpanded by remember { mutableStateOf(false) }
+    var tagsBottomSheetExpanded by remember { mutableStateOf(false) }
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -119,10 +129,11 @@ fun AddNotePage(
     }
 
     Scaffold(
+        modifier = Modifier.imePadding(),
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors().copy(
-                    containerColor = Color(viewModel.state.value.note.color)
+                    containerColor = Color(topAppBarColor)
                 ),
                 title = {
                     Text(text = "Add Note")
@@ -147,31 +158,66 @@ fun AddNotePage(
                         Icon(imageVector = Icons.Filled.Image, contentDescription = "Add Image Button")
                     }
                     IconButton(onClick = {
-                        viewModel.onEvent(
-                            AddNotesEvent.AddNote(
-                                Note(
-                                    id = noteId ?: 0,
-                                    noteTitle = title,
-                                    noteText = richTextState.toHtml(),
-                                    imageFilePath = imagePath,
-                                    page = pageNumber.toIntOrNull() ?: 0,
-                                    dateCreated = LocalDateTime.now().format(
-                                        DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
-                                    ),
-                                    color = viewModel.state.value.note.color,
-                                    bookId = bookId
+                        if (title.isEmpty() && pageNumber.isEmpty()){
+                            Toast.makeText(context, "Please fill in the title and page number", Toast.LENGTH_SHORT).show()
+                        } else{
+                            viewModel.onEvent(
+                                AddNotesEvent.AddNote(
+                                    Note(
+                                        id = noteId ?: 0,
+                                        noteTitle = title,
+                                        noteText = richTextState.toHtml(),
+                                        imageFilePath = imagePath,
+                                        page = pageNumber.toIntOrNull() ?: 0,
+                                        dateCreated = LocalDateTime.now().format(
+                                            DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
+                                        ),
+                                        color = viewModel.state.value.note.color,
+                                        bookId = bookId,
+                                        tags = viewModel.state.value.note.tags
+                                    )
                                 )
                             )
-                        )
-                        navController.navigateUp()
+                            navController.navigateUp()
+                        }
                     }) {
                         Icon(imageVector = Icons.Filled.Save, contentDescription = "Save Note")
+                    }
+
+                    Box(
+                        modifier = Modifier
+                    ) {
+                        IconButton(onClick = { dropdownMenuExpanded = !dropdownMenuExpanded }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "More options")
+                        }
+                        DropdownMenu(
+                            expanded = dropdownMenuExpanded,
+                            onDismissRequest = { dropdownMenuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Add Tag") },
+                                trailingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Filled.More,
+                                        contentDescription = "Add Tag"
+                                    )
+                                },
+                                onClick = {
+                                    tagsBottomSheetExpanded = true
+                                    dropdownMenuExpanded = false
+                                }
+                            )
+                        }
                     }
                 })
         },
     ) { paddingValues ->
 
         val state = viewModel.state.value
+
+        LaunchedEffect(state.note.color) {
+            topAppBarColor = state.note.color
+        }
 
         LaunchedEffect(noteId) {
             noteId?.let {
@@ -188,7 +234,7 @@ fun AddNotePage(
             }
         }
 
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -199,93 +245,112 @@ fun AddNotePage(
         ) {
 
             if (viewModel.isColorPickerShown) {
-                LazyRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                        .background(Color(viewModel.state.value.note.color))
-                        .border(1.dp, Color.LightGray )
-                ) {
-                    items(viewModel.colorList) { color ->
-                        Box(
-                            modifier = Modifier
-                                .size(50.dp)
-                                .background(Color(color))
-                                .clickable {
-                                    viewModel.onEvent(AddNotesEvent.ChangeColor(color))
-                                    viewModel.onEvent(AddNotesEvent.ToggleColorPicker)
-                                }
-                        )
+                item {
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .background(Color(viewModel.state.value.note.color))
+                            .border(1.dp, Color.LightGray )
+                    ) {
+                        items(viewModel.colorList) { color ->
+                            Box(
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .background(Color(color))
+                                    .clickable {
+                                        viewModel.onEvent(AddNotesEvent.ChangeColor(color))
+                                        viewModel.onEvent(AddNotesEvent.ToggleColorPicker)
+                                    }
+                            )
+                        }
                     }
                 }
             }
 
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                OutlinedTextField(
+            item {
+                Row(
                     modifier = Modifier
-                        .weight(7f),
-                    value = title,
-                    onValueChange = { title = it },
-                    label = { Text("Title") },
-                    maxLines = 1,
-                )
+                        .fillMaxWidth()
+                        .padding(start = 12.dp)
+                ) {
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .weight(7f),
+                        value = title,
+                        onValueChange = { title = it },
+                        label = { Text("Title") },
+                        maxLines = 1,
+                    )
 
-                OutlinedTextField(
-                    modifier = Modifier
-                        .weight(3f)
-                        .padding(horizontal = 8.dp),
-                    maxLines = 1,
-                    label = { Text("Page") },
-                    value = pageNumber,
-                    onValueChange = { newText ->
-                        if (newText.all { it.isDigit() }) {
-                            pageNumber = newText
-                        }
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .weight(3f)
+                            .padding(horizontal = 8.dp),
+                        maxLines = 1,
+                        label = { Text("Page") },
+                        value = pageNumber,
+                        onValueChange = { newText ->
+                            if (newText.all { it.isDigit() }) {
+                                pageNumber = newText
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Next,
+                            keyboardType = KeyboardType.Number
+                        ),
+                    )
+                }
+            }
+
+            item {
+                if (imagePath != ""){
+                    val bitmap = BitmapFactory.decodeFile(imagePath)
+                    ZoomableImageWithBlurDynamic(bitmap = bitmap)
+                }
+            }
+
+            item{
+                EditorControls(
+                    modifier = Modifier.fillMaxWidth().height(80.dp),
+                    state = richTextState,
+                    onBoldClick = {
+                        richTextState.toggleSpanStyle(SpanStyle(fontWeight = FontWeight.Bold))
                     },
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.Next,
-                        keyboardType = KeyboardType.Number
+                    onItalicClick = {
+                        richTextState.toggleSpanStyle(SpanStyle(fontStyle = FontStyle.Italic))
+                    },
+                    onUnderlineClick = {
+                        richTextState.toggleSpanStyle(SpanStyle(textDecoration = TextDecoration.Underline))
+                    },
+                    onTitleClick = {
+                        richTextState.toggleSpanStyle(SpanStyle(fontSize = titleSize))
+                    },
+                    onSubtitleClick = {
+                        richTextState.toggleSpanStyle(SpanStyle(fontSize = subtitleSize))
+                    },
+                    onTextColorClick = {
+                        richTextState.toggleSpanStyle(SpanStyle(color = Color.Red))
+                    },
+                )
+                RichTextEditor(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    state = richTextState,
+                    colors = RichTextEditorDefaults.richTextEditorColors(
+                        containerColor = Color(viewModel.state.value.note.color),
                     ),
                 )
             }
-
-            if (imagePath != ""){
-                val bitmap = BitmapFactory.decodeFile(imagePath)
-                ZoomableImageWithBlurDynamic(bitmap = bitmap)
-            }
-
-            EditorControls(
-                modifier = Modifier.fillMaxWidth().height(80.dp),
-                state = richTextState,
-                onBoldClick = {
-                    richTextState.toggleSpanStyle(SpanStyle(fontWeight = FontWeight.Bold))
+        }
+        if (tagsBottomSheetExpanded){
+            TagsBottomSheet(
+                onDismissRequest = { tagsBottomSheetExpanded = false},
+                onSave = { tags ->
+                    viewModel.onEvent(AddNotesEvent.SaveTags(tags, noteId))
+                    tagsBottomSheetExpanded = false
                 },
-                onItalicClick = {
-                    richTextState.toggleSpanStyle(SpanStyle(fontStyle = FontStyle.Italic))
-                },
-                onUnderlineClick = {
-                    richTextState.toggleSpanStyle(SpanStyle(textDecoration = TextDecoration.Underline))
-                },
-                onTitleClick = {
-                    richTextState.toggleSpanStyle(SpanStyle(fontSize = titleSize))
-                },
-                onSubtitleClick = {
-                    richTextState.toggleSpanStyle(SpanStyle(fontSize = subtitleSize))
-                },
-                onTextColorClick = {
-                    richTextState.toggleSpanStyle(SpanStyle(color = Color.Red))
-                },
-            )
-
-            RichTextEditor(
-                modifier = Modifier
-                    .fillMaxSize(),
-                state = richTextState,
-                colors = RichTextEditorDefaults.richTextEditorColors(
-                    containerColor = Color(viewModel.state.value.note.color),
-                ),
+                tags = viewModel.state.value.note.tags,
             )
         }
     }
@@ -308,9 +373,7 @@ fun EditorControls(
     var titleSelected by rememberSaveable { mutableStateOf(false) }
     var subtitleSelected by rememberSaveable { mutableStateOf(false) }
     var textColorSelected by rememberSaveable { mutableStateOf(false) }
-    var linkSelected by rememberSaveable { mutableStateOf(false) }
 
-    var showLinkDialog by remember { mutableStateOf(false) }
 
     val titleSize = MaterialTheme.typography.displaySmall.fontSize
     val subtitleSize = MaterialTheme.typography.titleLarge.fontSize
@@ -322,23 +385,6 @@ fun EditorControls(
         titleSelected = state.currentSpanStyle.fontSize == titleSize
         subtitleSelected = state.currentSpanStyle.fontSize == subtitleSize
         textColorSelected = state.currentSpanStyle.color == Color.Red
-    }
-
-    AnimatedVisibility(visible = showLinkDialog) {
-        LinkDialog(
-            onDismissRequest = {
-                showLinkDialog = false
-                linkSelected = false
-            },
-            onConfirmation = { linkText, link ->
-                state.addLink(
-                    text = linkText,
-                    url = link
-                )
-                showLinkDialog = false
-                linkSelected = false
-            }
-        )
     }
 
     FlowRow(
@@ -421,83 +467,7 @@ fun EditorControls(
                 tint = MaterialTheme.colorScheme.onPrimary
             )
         }
-        ControlWrapper(
-            selected = linkSelected,
-            onChangeClick = { linkSelected = it },
-            onClick = { showLinkDialog = true }
-        ) {
-            Icon(
-                imageVector = Icons.Default.AddLink,
-                contentDescription = "Link Control",
-                tint = MaterialTheme.colorScheme.onPrimary
-            )
-        }
-        /*
-        ControlWrapper(
-            selected = true,
-            selectedColor = MaterialTheme.colorScheme.tertiary,
-            onChangeClick = { },
-            onClick = onExportClick
-        ) {
-            Icon(
-                imageVector = Icons.Default.Save,
-                contentDescription = "Export Control",
-                tint = MaterialTheme.colorScheme.onPrimary
-            )
-        }
-
-         */
     }
-}
-
-@Composable
-fun LinkDialog(
-    onDismissRequest: () -> Unit,
-    onConfirmation: (String, String) -> Unit
-){
-    var linkText by remember { mutableStateOf(TextFieldValue()) }
-    var link by remember { mutableStateOf(TextFieldValue()) }
-
-    Dialog(
-        onDismissRequest = onDismissRequest
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
-        ) {
-            OutlinedTextField(
-                value = linkText,
-                onValueChange = { linkText = it },
-                label = { Text("Link Text") }
-            )
-            OutlinedTextField(
-                value = link,
-                onValueChange = { link = it },
-                label = { Text("Link") }
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                IconButton(onClick = onDismissRequest) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Close Link Dialog"
-                    )
-                }
-                IconButton(onClick = {
-                    onConfirmation(linkText.text, link.text)
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.Save,
-                        contentDescription = "Save Link"
-                    )
-                }
-            }
-        }
-    }
-
 }
 
 @Composable
@@ -543,7 +513,7 @@ fun ZoomableImageWithBlurDynamic(
             .fillMaxWidth()
             .height(300.dp)
             .border(2.dp, Color.Gray, RoundedCornerShape(2.dp))
-            .padding(4.dp),
+            .padding(8.dp),
         contentAlignment = Alignment.Center
     ) {
         Image(
