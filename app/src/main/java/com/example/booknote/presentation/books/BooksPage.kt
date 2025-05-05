@@ -2,6 +2,7 @@ package com.example.booknote.presentation.books
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -15,9 +16,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
@@ -54,7 +57,6 @@ import androidx.navigation.NavController
 import com.example.booknote.R
 import com.example.booknote.domain.model.Book
 import com.example.booknote.domain.util.BooksSortOrder
-import com.example.booknote.presentation.books.components.AddBookDialog
 import com.example.booknote.presentation.notes.components.SortBottomSheet
 import com.example.booknote.presentation.notes.components.ToggleItem
 import com.example.booknote.presentation.util.Page
@@ -117,7 +119,10 @@ fun BooksPage(
             FloatingActionButton(
                 containerColor = Color(0xff54b7de),
                 onClick = {
-                    viewModel.onEvent(BooksEvent.AddBookButtonClicked)
+                    navController.navigate(
+                        Page.AddBookPage.route +
+                                "?bookId=-1"
+                    )
                 },
                 content = { Icon(Icons.Filled.Add, contentDescription = "Add") },
             )
@@ -270,6 +275,24 @@ fun BooksPage(
                                         modifier = Modifier.align(Alignment.Center)
                                     )
                                 }
+
+                                Box(
+                                    modifier = Modifier
+                                        .background(
+                                            color = Color(0xffd5f5e3),
+                                            shape = RoundedCornerShape(8.dp)
+                                        )
+                                        .wrapContentSize()
+                                        .align(Alignment.TopEnd),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Text(
+                                        text = book.status.name,
+                                        fontSize = 20.sp,
+                                        modifier = Modifier
+                                            .padding(8.dp)
+                                    )
+                                }
                             }
                             Text(
                                 text = book.title,
@@ -300,25 +323,6 @@ fun BooksPage(
                     viewModel.onEvent(BooksEvent.ChangeOrder(order))
                     viewModel.onEvent(BooksEvent.GetBooks(state.searchQuery, order))
                     viewModel.onEvent(BooksEvent.DismissBottomSheet)
-                }
-            )
-        }
-
-        if (viewModel.isDialogShown){
-            AddBookDialog(
-                onDismiss = {
-                    viewModel.onEvent(BooksEvent.DismissDialog)
-                },
-                onConfirm = { book ->
-                    viewModel.onEvent(BooksEvent.AddBook(
-                        Book(
-                            title = book.title,
-                            author = book.author,
-                            publisher = book.publisher,
-                            language = book.language
-                        )
-                    ))
-                    viewModel.onEvent(BooksEvent.DismissDialog)
                 }
             )
         }

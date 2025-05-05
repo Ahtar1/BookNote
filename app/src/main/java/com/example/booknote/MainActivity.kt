@@ -18,6 +18,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.booknote.presentation.add_audio.AddAudioPage
+import com.example.booknote.presentation.add_book.AddBookPage
+import com.example.booknote.presentation.book_details.BookDetailsPage
 import com.example.booknote.presentation.books.BooksPage
 import com.example.booknote.presentation.calendar.CalendarPage
 import com.example.booknote.presentation.draw_note.DrawNotePage
@@ -135,6 +137,38 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(route = Page.CalendarPage.route){
                             CalendarPage(navController)
+                        }
+                        composable(
+                            route = Page.AddBookPage.route + "?bookId={bookId}",
+                            arguments = listOf(
+                                navArgument(
+                                    name = "bookId"
+                                ) {
+                                    type = NavType.LongType
+                                    defaultValue = -1
+                                }
+                            )
+                        ){
+                            val bookId = it.arguments?.getLong("bookId") ?: -1
+                            AddBookPage(
+                                navController, bookId
+                            )
+                        }
+                        composable(
+                            route = Page.BookDetailsPage.route + "?bookId={bookId}",
+                            arguments = listOf(
+                                navArgument(
+                                    name = "bookId"
+                                ) {
+                                    type = NavType.LongType
+                                    defaultValue = -1
+                                }
+                            )
+                        ){
+                            val bookId = it.arguments?.getLong("bookId") ?: -1
+                            BookDetailsPage(
+                                navController, bookId
+                            )
                         }
                     }
                 }

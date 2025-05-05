@@ -10,6 +10,4 @@ sealed class BooksEvent {
     data class ChangeOrder(val order: SortOrder): BooksEvent()
     object OrderButtonClicked: BooksEvent()
     object DismissBottomSheet: BooksEvent()
-    object AddBookButtonClicked: BooksEvent()
-    object DismissDialog: BooksEvent()
 }

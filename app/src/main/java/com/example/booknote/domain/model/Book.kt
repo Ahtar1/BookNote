@@ -11,7 +11,14 @@ data class Book(
     val author: String,
     val publisher: String,
     val language: String,
+    val status: BookStatus
 ) {
     @Ignore
     val notes: MutableList<Note> = mutableListOf()
+
+    enum class BookStatus {
+        READ,
+        READING,
+        TO_READ
+    }
 }

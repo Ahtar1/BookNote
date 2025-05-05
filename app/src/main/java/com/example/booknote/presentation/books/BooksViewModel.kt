@@ -20,10 +20,6 @@ class BooksViewModel @Inject constructor(
     private val _state = mutableStateOf(BooksState())
     var state: State<BooksState> = _state
 
-
-    var isDialogShown by mutableStateOf(false)
-        private set
-
     var isBottomSheetShown by mutableStateOf(false)
         private set
 
@@ -66,14 +62,6 @@ class BooksViewModel @Inject constructor(
 
             is BooksEvent.OrderButtonClicked -> {
                 isBottomSheetShown = true
-            }
-
-            is BooksEvent.AddBookButtonClicked -> {
-                isDialogShown = true
-            }
-
-            is BooksEvent.DismissDialog -> {
-                isDialogShown = false
             }
 
             is BooksEvent.ChangeOrder -> {
