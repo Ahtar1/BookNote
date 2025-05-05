@@ -4,5 +4,6 @@ data class BookUseCases(
     val addBook: AddBook,
     val deleteBooks: DeleteBook,
     val getBookById: GetBookById,
-    val getBooks: GetBooks
+    val getBooks: GetBooks,
+    val updateBook: UpdateBook,
 )

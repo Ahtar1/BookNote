@@ -18,6 +18,10 @@ class BookRepositoryImpl(
         return dao.getBookById(id)
     }
 
+    override suspend fun updateBook(book: Book) {
+        dao.updateBook(book)
+    }
+
     override suspend fun getBooksBySearchQuery(searchQuery: String, sortOrder: SortOrder): Flow<List<Book>> {
         val booksSortOrderString = when (sortOrder) {
             is BooksSortOrder.BookTitleAsc -> "bookTitleAsc"
