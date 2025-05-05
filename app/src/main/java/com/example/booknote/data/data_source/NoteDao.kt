@@ -44,4 +44,6 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE dateCreated LIKE '%' || :date || '%'")
     fun getNotesByDate(date: String): Flow<List<Note>>
 
+    @Query("SELECT DISTINCT tags FROM notes")
+    fun getTags() : Flow<List<String>>
 }

@@ -46,5 +46,8 @@ class NoteRepositoryImpl(
     override suspend fun getNotesByDate(date: String): Flow<List<Note>> {
         return dao.getNotesByDate(date)
     }
+    override suspend fun getTags(): Flow<List<String>> {
+        return dao.getTags()
+    }
 
 }

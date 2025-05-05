@@ -18,7 +18,9 @@ import com.example.booknote.domain.use_case.GetNote
 import com.example.booknote.domain.use_case.GetNoteDates
 import com.example.booknote.domain.use_case.GetNotes
 import com.example.booknote.domain.use_case.GetNotesByDate
+import com.example.booknote.domain.use_case.GetTags
 import com.example.booknote.domain.use_case.NoteUseCases
+import com.example.booknote.domain.use_case.UpdateBook
 import com.example.booknote.domain.use_case.UpdateNote
 import dagger.Module
 import dagger.Provides
@@ -62,7 +64,8 @@ object AppModule {
             deleteNotes = DeleteNotes(repository),
             getNote = GetNote(repository),
             getNoteDates = GetNoteDates(repository),
-            getNotesByDate = GetNotesByDate(repository)
+            getNotesByDate = GetNotesByDate(repository),
+            getTags = GetTags(repository)
         )
     }
     @Provides
@@ -72,7 +75,8 @@ object AppModule {
             getBooks = GetBooks(repository),
             addBook = AddBook(repository),
             deleteBooks = DeleteBook(repository),
-            getBookById = GetBookById(repository)
+            getBookById = GetBookById(repository),
+            updateBook = UpdateBook(repository)
         )
     }
 }

@@ -7,5 +7,6 @@ data class NoteUseCases(
     val getNote: GetNote,
     val deleteNotes: DeleteNotes,
     val getNoteDates: GetNoteDates,
-    val getNotesByDate: GetNotesByDate
+    val getNotesByDate: GetNotesByDate,
+    val getTags: GetTags,
     )

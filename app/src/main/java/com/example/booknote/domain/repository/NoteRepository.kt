@@ -13,4 +13,5 @@ interface NoteRepository {
     suspend fun deleteNotes(notes: List<Note>)
     suspend fun getAllNoteDates(): Flow<List<String>>
     suspend fun getNotesByDate(date: String): Flow<List<Note>>
+    suspend fun getTags(): Flow<List<String>>
 }

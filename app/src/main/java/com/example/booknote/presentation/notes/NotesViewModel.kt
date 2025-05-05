@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.booknote.domain.model.Note
 import com.example.booknote.domain.use_case.BookUseCases
 import com.example.booknote.domain.use_case.NoteUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,8 +14,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import org.json.JSONArray
 import java.io.File
 import javax.inject.Inject
+
 @HiltViewModel
 class NotesViewModel @Inject constructor(
     private val noteUseCases: NoteUseCases,
@@ -28,6 +31,9 @@ class NotesViewModel @Inject constructor(
 
     var isBottomSheetShown by mutableStateOf(false)
         private set
+
+    private var notes = mutableListOf<Note>()
+
     fun onEvent(event: NotesEvent) {
         when(event){
             is NotesEvent.DeleteNotes -> {
@@ -43,6 +49,7 @@ class NotesViewModel @Inject constructor(
             is NotesEvent.GetNotes -> {
                 viewModelScope.launch {
                     noteUseCases.getNotes(bookId = event.bookId.toLong(),event.searchQuery, state.value.order).collectLatest {
+                        notes = it.toMutableList()
                         _state.value = _state.value.copy(
                             notes = it,
                             searchQuery = event.searchQuery,
@@ -58,6 +65,20 @@ class NotesViewModel @Inject constructor(
                             audios = _state.value.audios + file
                         )
                     }
+                }
+            }
+
+            is NotesEvent.GetBook -> {
+                viewModelScope.launch {
+                     _state.value = _state.value.copy(
+                        book = bookUseCases.getBookById(event.bookId)
+                    )
+                }
+            }
+
+            is NotesEvent.UpdateBook -> {
+                viewModelScope.launch {
+                    bookUseCases.updateBook(event.book)
                 }
             }
 
@@ -96,6 +117,37 @@ class NotesViewModel @Inject constructor(
 
             is NotesEvent.DismissDialog -> {
                 isDialogShown = false
+            }
+            is NotesEvent.GetTags -> {
+                viewModelScope.launch {
+                    noteUseCases.getTags().collectLatest { rawTagStrings ->
+                        val allTags = rawTagStrings.flatMap { jsonString ->
+                            try {
+                                val jsonArray = JSONArray(jsonString)
+                                List(jsonArray.length()) { i -> jsonArray.getString(i) }
+                            } catch (e: Exception) {
+                                emptyList()
+                            }
+                        }.distinct()
+
+                        _state.value = _state.value.copy(
+                            tags = allTags
+                        )
+                    }
+                }
+            }
+            is NotesEvent.UpdateNotesByTags -> {
+                if(event.tags.isEmpty()){
+                    _state.value = _state.value.copy(
+                        notes = notes
+                    )
+                    return
+                }
+
+                val filteredNotes = notes.filter { note ->
+                    event.tags.any { tag -> tag in note.tags }
+                }
+                _state.value = _state.value.copy(notes = filteredNotes)
             }
         }
     }

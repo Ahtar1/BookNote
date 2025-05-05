@@ -11,11 +11,13 @@ data class NotesState(
     val audios: List<File> = emptyList(),
     val searchQuery: String = "",
     val order: SortOrder = NotesSortOrder.DateCreatedDesc,
+    val tags : List<String> = emptyList(),
     val book: Book =  Book(
         id= 0,
         title = "",
         author = "",
         publisher = "",
-        language = ""
+        language = "",
+        status = Book.BookStatus.TO_READ
     )
 )

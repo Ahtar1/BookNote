@@ -13,7 +13,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -22,13 +21,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -37,9 +36,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Audiotrack
@@ -69,10 +68,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.booknote.domain.model.Note
@@ -93,7 +92,6 @@ import java.io.File
 fun NotesPage(
     navController: NavController,
     bookId: Long,
-    bookTitle: String,
     viewModel: NotesViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -105,12 +103,13 @@ fun NotesPage(
     var selectedNotes by remember { mutableStateOf(listOf<Note>()) }
     var selectedBottomSheetItem by remember { mutableStateOf<ToggleItem?>(ToggleItem(5, "Date Created Descending", NotesSortOrder.DateCreatedDesc),) }
     val navBackStackEntry = remember { navController.currentBackStackEntry }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+
+    val selectedTags = remember { mutableStateOf(listOf<String>()) }
+
 
     LaunchedEffect(navBackStackEntry) {
-        viewModel.onEvent(NotesEvent.GetNotes(bookId = bookId.toString(), searchQuery = ""))
-    }
-
-    LaunchedEffect(bookId) {
         viewModel.onEvent(NotesEvent.GetNotes(bookId = bookId.toString(), searchQuery = ""))
     }
 
@@ -118,11 +117,21 @@ fun NotesPage(
         viewModel.onEvent(NotesEvent.GetNotes(bookId = bookId.toString(), searchQuery = state.searchQuery, notesSortOrder = state.order))
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(NotesEvent.GetTags)
+        savedStateHandle?.getLiveData<Boolean>("refresh")?.observe(lifecycleOwner) { shouldRefresh ->
+            if (shouldRefresh == true) {
+                viewModel.onEvent(NotesEvent.GetNotes(bookId = bookId.toString(), searchQuery = ""))
+                savedStateHandle.remove<Boolean>("refresh")
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = if (selectionMode) "${selectedNotes.size} Seçildi" else bookTitle)
+                    Text(text = if (selectionMode) "${selectedNotes.size} Seçildi" else state.book.title)
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
@@ -169,10 +178,12 @@ fun NotesPage(
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         IconButton(onClick = {
-                            viewModel.onEvent(NotesEvent.InfoButtonClicked(bookId))
+                            navController.navigate(
+                                Page.BookDetailsPage.route + "?bookId=${bookId}"
+                            )
                         }) {
                             Icon(
-                                imageVector = Icons.Filled.Info,
+                                imageVector = Icons.Filled.Edit,
                                 contentDescription = "Book Info"
                             )
                         }
@@ -244,6 +255,62 @@ fun NotesPage(
                         Icon(imageVector = Icons.Filled.Search, contentDescription = "searchIcon") },
                     content = {},)
             }
+
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 0.dp, start = 8.dp, bottom = 8.dp, end = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                items(viewModel.state.value.tags){
+                    Card(
+                        modifier = Modifier
+                            .padding(end = 4.dp)
+                            .wrapContentSize()
+                            .height(30.dp)
+                            .clickable{
+                                if (selectedTags.value.contains(it)) {
+                                    selectedTags.value -= it
+                                } else {
+                                    selectedTags.value += it
+                                }
+                                println("Selected Tags: ${selectedTags.value}")
+                                viewModel.onEvent(NotesEvent.UpdateNotesByTags(selectedTags.value))
+                            },
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (selectedTags.value.contains(it)) Color(0xff54b7de) else Color(0xFF4CAF50),
+                        ),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(vertical = 4.dp, horizontal = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                modifier = Modifier,
+                                text = it,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            if(selectedTags.value.contains(it)){
+                                Icon(
+                                    modifier = Modifier
+                                    ,
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = "Check",
+                                    tint = Color.White
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             LazyColumn(
                 state = lazyColumnState,
                 modifier = Modifier
@@ -460,107 +527,6 @@ fun NotesPage(
 
                 }
             )
-        }
-
-        if (viewModel.isDialogShown) {
-            Dialog(
-                onDismissRequest = {
-                    viewModel.onEvent(NotesEvent.DismissDialog)
-                })
-            {
-                Box(
-                    contentAlignment = Alignment.TopEnd,
-                    modifier = Modifier
-                        .fillMaxWidth(0.80f)
-                        .fillMaxHeight(0.4f)
-                        .border(
-                            width = 1.dp,
-                            color = Color.Black,
-                            shape = RoundedCornerShape(15.dp)
-                        )
-                ) {
-                    Card(
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 10.dp
-                        ),
-                        shape = RoundedCornerShape(15.dp),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 15.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Row {
-                                Text(
-                                    text = "Title:"
-                                )
-
-                                Spacer(modifier = Modifier.width(10.dp))
-
-                                Text(
-                                    text = state.book.title
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Row {
-                                Text(
-                                    text = "Author:"
-                                )
-
-                                Spacer(modifier = Modifier.width(10.dp))
-
-                                Text(
-                                    text = state.book.author
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Row {
-                                Text(
-                                    text = "Language:"
-                                )
-
-                                Spacer(modifier = Modifier.width(10.dp))
-
-                                Text(
-                                    text = state.book.language
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            Row {
-                                Text(
-                                    text = "Publisher:"
-                                )
-
-                                Spacer(modifier = Modifier.width(10.dp))
-
-                                Text(
-                                    text = state.book.publisher
-                                )
-                            }
-
-                        }
-                    }
-                    IconButton(
-                        onClick = { viewModel.onEvent(NotesEvent.DismissDialog) },
-                        modifier = Modifier.padding(top = 10.dp, end = 10.dp, bottom = 10.dp)
-                    ) {
-                        Icon(
-                            modifier = Modifier.size(24.dp),
-                            imageVector = Icons.Filled.Close,
-                            contentDescription = "Close",
-                        )
-                    }
-                }
-            }
         }
     }
 }
