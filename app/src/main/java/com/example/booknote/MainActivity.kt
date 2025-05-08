@@ -33,6 +33,7 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             BookNoteTheme {
                 // A surface container using the 'background' color from the theme
@@ -73,7 +74,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(
                             route = Page.NotesPage.route +
-                                    "?bookId={bookId}&bookTitle={bookTitle}",
+                                    "?bookId={bookId}",
                             arguments = listOf(
                                 navArgument(
                                     name = "bookId"
@@ -81,20 +82,12 @@ class MainActivity : ComponentActivity() {
                                     type = NavType.LongType
                                     defaultValue = -1
                                 },
-                                navArgument(
-                                    name = "bookTitle"
-                                ) {
-                                    type = NavType.StringType
-                                    defaultValue = ""
-                                }
                             )
                         ){
                             val bookId = it.arguments?.getLong("bookId") ?: -1
-                            val bookTitle = it.arguments?.getString("bookTitle") ?: ""
                             NotesPage(
                                 navController = navController,
                                 bookId = bookId,
-                                bookTitle = bookTitle
                             )
                         }
                         composable(
@@ -139,19 +132,11 @@ class MainActivity : ComponentActivity() {
                             CalendarPage(navController)
                         }
                         composable(
-                            route = Page.AddBookPage.route + "?bookId={bookId}",
-                            arguments = listOf(
-                                navArgument(
-                                    name = "bookId"
-                                ) {
-                                    type = NavType.LongType
-                                    defaultValue = -1
-                                }
-                            )
+                            route = Page.AddBookPage.route,
+
                         ){
-                            val bookId = it.arguments?.getLong("bookId") ?: -1
                             AddBookPage(
-                                navController, bookId
+                                navController
                             )
                         }
                         composable(
