@@ -149,6 +149,11 @@ class NotesViewModel @Inject constructor(
                 }
                 _state.value = _state.value.copy(notes = filteredNotes)
             }
+            is NotesEvent.ChangeFavorite -> {
+                viewModelScope.launch {
+                    noteUseCases.updateNote(event.note.copy(favorite = !event.note.favorite))
+                }
+            }
         }
     }
 

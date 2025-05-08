@@ -18,6 +18,7 @@ data class NotesState(
         author = "",
         publisher = "",
         language = "",
-        status = Book.BookStatus.TO_READ
+        status = Book.BookStatus.TO_READ,
+        bookImagePath = "",
     )
 )

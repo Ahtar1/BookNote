@@ -40,6 +40,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Audiotrack
 import androidx.compose.material.icons.rounded.Draw
@@ -108,7 +109,6 @@ fun NotesPage(
 
     val selectedTags = remember { mutableStateOf(listOf<String>()) }
 
-
     LaunchedEffect(navBackStackEntry) {
         viewModel.onEvent(NotesEvent.GetNotes(bookId = bookId.toString(), searchQuery = ""))
     }
@@ -119,6 +119,8 @@ fun NotesPage(
 
     LaunchedEffect(Unit) {
         viewModel.onEvent(NotesEvent.GetTags)
+        viewModel.onEvent(NotesEvent.GetBook(bookId))
+        viewModel.onEvent(NotesEvent.GetNotes(bookId = bookId.toString(), searchQuery = ""))
         savedStateHandle?.getLiveData<Boolean>("refresh")?.observe(lifecycleOwner) { shouldRefresh ->
             if (shouldRefresh == true) {
                 viewModel.onEvent(NotesEvent.GetNotes(bookId = bookId.toString(), searchQuery = ""))
@@ -503,6 +505,23 @@ fun NotesPage(
                                     }
                                 }
                             }
+                            IconButton(
+                                modifier = Modifier
+                                    .size(34.dp)
+                                    .align(Alignment.Start)
+                                    .padding(top = 8.dp),
+                                onClick = {
+                                    viewModel.onEvent(NotesEvent.ChangeFavorite(note))
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Star,
+                                    contentDescription = "Favorite",
+                                    tint = if (note.favorite) Color(0xff54b7de) else Color.Gray,
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                )
+                            }
                         }
                     }
                 }
@@ -632,6 +651,7 @@ fun CustomExpandableFAB(
 
 fun saveImageToInternalStorage(context: Context, uri: Uri): File? {
     return try {
+
         val inputStream = context.contentResolver.openInputStream(uri)
         val imageFile = File(context.getExternalFilesDir(null), "image_${System.currentTimeMillis()}.jpg")
         val outputStream = imageFile.outputStream()

@@ -16,6 +16,7 @@ sealed class NotesEvent {
     data class InfoButtonClicked(val bookId: Long): NotesEvent()
     data class ChangeOrder(val order: SortOrder): NotesEvent()
     data class UpdateNotesByTags(val tags: List<String>): NotesEvent()
+    data class ChangeFavorite(val note: Note): NotesEvent()
     object GetTags: NotesEvent()
     object OrderButtonClicked: NotesEvent()
     object DismissBottomSheet: NotesEvent()
