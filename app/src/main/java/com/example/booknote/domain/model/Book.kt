@@ -11,7 +11,8 @@ data class Book(
     val author: String,
     val publisher: String,
     val language: String,
-    val status: BookStatus
+    val status: BookStatus,
+    val bookImagePath: String,
 ) {
     @Ignore
     val notes: MutableList<Note> = mutableListOf()
