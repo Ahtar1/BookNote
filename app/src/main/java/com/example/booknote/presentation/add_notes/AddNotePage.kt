@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -127,7 +126,7 @@ fun AddNotePage(
     }
 
     Scaffold(
-        modifier = Modifier.imePadding(),
+        modifier = Modifier,
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors().copy(
@@ -170,6 +169,7 @@ fun AddNotePage(
                                         dateCreated = LocalDateTime.now().format(
                                             DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")
                                         ),
+                                        favorite = viewModel.state.value.note.favorite,
                                         color = viewModel.state.value.note.color,
                                         bookId = bookId,
                                         tags = viewModel.state.value.note.tags
@@ -270,7 +270,7 @@ fun AddNotePage(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 12.dp)
+                        .padding(start = 12.dp, bottom = 8.dp),
                 ) {
                     OutlinedTextField(
                         modifier = Modifier
@@ -331,9 +331,12 @@ fun AddNotePage(
                         richTextState.toggleSpanStyle(SpanStyle(color = Color.Red))
                     },
                 )
+            }
+            item {
                 RichTextEditor(
                     modifier = Modifier
-                        .fillMaxSize(),
+                        .fillParentMaxHeight()
+                        .fillMaxWidth(),
                     state = richTextState,
                     colors = RichTextEditorDefaults.richTextEditorColors(
                         containerColor = Color(viewModel.state.value.note.color),
