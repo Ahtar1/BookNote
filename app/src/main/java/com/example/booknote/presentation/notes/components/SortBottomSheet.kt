@@ -17,7 +17,8 @@ import com.example.booknote.domain.util.SortOrder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-change    onDismissRequest: () -> Unit,
+fun SortBottomSheet(
+    onDismissRequest: () -> Unit,
     sortItems: List<ToggleItem>,
     initialSelectedItem: ToggleItem?,
     onItemSelected: (ToggleItem) -> Unit,
