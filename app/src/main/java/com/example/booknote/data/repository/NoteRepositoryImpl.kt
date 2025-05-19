@@ -49,5 +49,17 @@ class NoteRepositoryImpl(
     override suspend fun getTags(): Flow<List<String>> {
         return dao.getTags()
     }
+    override suspend fun getFavoriteNotes(searchQuery: String, sortOrder: SortOrder): Flow<List<Note>> {
+        val notesSortOrderString = when (sortOrder) {
+            is NotesSortOrder.NoteTitleAsc -> "noteTitleAsc"
+            is NotesSortOrder.NoteTitleDesc -> "noteTitleDesc"
+            is NotesSortOrder.PageAsc -> "pageAsc"
+            is NotesSortOrder.PageDesc -> "pageDesc"
+            is NotesSortOrder.DateCreatedAsc -> "dateCreatedAsc"
+            is NotesSortOrder.DateCreatedDesc -> "dateCreatedDesc"
+            else -> throw IllegalArgumentException("Unsupported sort order: $sortOrder")
+        }
+        return dao.getFavoriteNotes(searchQuery, notesSortOrderString)
+    }
 
 }

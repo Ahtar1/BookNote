@@ -9,4 +9,5 @@ data class NoteUseCases(
     val getNoteDates: GetNoteDates,
     val getNotesByDate: GetNotesByDate,
     val getTags: GetTags,
+    val getFavoriteNotes: GetFavoriteNotes,
     )

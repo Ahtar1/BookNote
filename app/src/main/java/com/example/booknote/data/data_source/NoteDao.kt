@@ -46,4 +46,25 @@ interface NoteDao {
 
     @Query("SELECT DISTINCT tags FROM notes")
     fun getTags() : Flow<List<String>>
+
+    @Query("""
+    SELECT * FROM notes 
+    WHERE favorite = 1
+    AND (noteText LIKE '%' || :searchQuery || '%' OR noteTitle LIKE '%' || :searchQuery || '%')
+    ORDER BY 
+    CASE 
+        WHEN :sortOrder = 'noteTitleAsc' THEN noteTitle COLLATE NOCASE END ASC,
+        CASE 
+        WHEN :sortOrder = 'noteTitleDesc' THEN noteTitle COLLATE NOCASE END DESC,
+        CASE 
+        WHEN :sortOrder = 'pageAsc' THEN page END ASC,
+        CASE 
+        WHEN :sortOrder = 'pageDesc' THEN page END DESC,
+        CASE 
+        WHEN :sortOrder = 'dateCreatedAsc' THEN dateCreated END ASC,
+        CASE 
+        WHEN :sortOrder = 'dateCreatedDesc' THEN dateCreated END DESC
+""")
+    fun getFavoriteNotes(searchQuery: String, sortOrder: String): Flow<List<Note>>
+
 }

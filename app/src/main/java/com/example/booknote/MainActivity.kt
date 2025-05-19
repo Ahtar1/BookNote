@@ -9,8 +9,10 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -23,6 +25,8 @@ import com.example.booknote.presentation.book_details.BookDetailsPage
 import com.example.booknote.presentation.books.BooksPage
 import com.example.booknote.presentation.calendar.CalendarPage
 import com.example.booknote.presentation.draw_note.DrawNotePage
+import com.example.booknote.presentation.favorite_notes.FavoriteNotesPage
+import com.example.booknote.presentation.focus.FocusPage
 import com.example.booknote.presentation.notes.NotesPage
 import com.example.booknote.presentation.util.Page
 import com.example.booknote.ui.theme.BookNoteTheme
@@ -35,7 +39,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            BookNoteTheme {
+            BookNoteTheme(
+                darkTheme = false,
+            ) {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -153,6 +159,22 @@ class MainActivity : ComponentActivity() {
                             val bookId = it.arguments?.getLong("bookId") ?: -1
                             BookDetailsPage(
                                 navController, bookId
+                            )
+                        }
+                        composable(
+                            route = Page.FavoriteNotesPage.route,
+
+                            ){
+                            FavoriteNotesPage(
+                                navController
+                            )
+                        }
+                        composable(
+                            route = Page.FocusPage.route,
+
+                            ){
+                            FocusPage(
+                                navController
                             )
                         }
                     }
