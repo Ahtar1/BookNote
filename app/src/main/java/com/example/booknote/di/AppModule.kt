@@ -4,16 +4,23 @@ import android.app.Application
 import androidx.room.Room
 import com.example.booknote.data.data_source.AppDatabase
 import com.example.booknote.data.repository.BookRepositoryImpl
+import com.example.booknote.data.repository.FocusSessionRepositoryImpl
 import com.example.booknote.data.repository.NoteRepositoryImpl
 import com.example.booknote.domain.repository.BookRepository
+import com.example.booknote.domain.repository.FocusSessionRepository
 import com.example.booknote.domain.repository.NoteRepository
 import com.example.booknote.domain.use_case.AddBook
+import com.example.booknote.domain.use_case.AddFocusSession
 import com.example.booknote.domain.use_case.AddNote
 import com.example.booknote.domain.use_case.BookUseCases
 import com.example.booknote.domain.use_case.DeleteBook
 import com.example.booknote.domain.use_case.DeleteNotes
+import com.example.booknote.domain.use_case.FocusSessionUseCases
 import com.example.booknote.domain.use_case.GetBookById
 import com.example.booknote.domain.use_case.GetBooks
+import com.example.booknote.domain.use_case.GetFavoriteNotes
+import com.example.booknote.domain.use_case.GetFocusSessionByBookId
+import com.example.booknote.domain.use_case.GetFocusSessionByDate
 import com.example.booknote.domain.use_case.GetNote
 import com.example.booknote.domain.use_case.GetNoteDates
 import com.example.booknote.domain.use_case.GetNotes
@@ -56,6 +63,12 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideFocusSessionRepository(db: AppDatabase): FocusSessionRepository {
+        return FocusSessionRepositoryImpl(db.focusSessionDao)
+    }
+
+    @Provides
+    @Singleton
     fun provideNoteUseCases(repository: NoteRepository): NoteUseCases {
         return NoteUseCases(
             getNotes = GetNotes(repository),
@@ -65,7 +78,8 @@ object AppModule {
             getNote = GetNote(repository),
             getNoteDates = GetNoteDates(repository),
             getNotesByDate = GetNotesByDate(repository),
-            getTags = GetTags(repository)
+            getTags = GetTags(repository),
+            getFavoriteNotes = GetFavoriteNotes(repository)
         )
     }
     @Provides
@@ -77,6 +91,16 @@ object AppModule {
             deleteBooks = DeleteBook(repository),
             getBookById = GetBookById(repository),
             updateBook = UpdateBook(repository)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideFocusSessionUseCases(repository: FocusSessionRepository): FocusSessionUseCases {
+        return FocusSessionUseCases(
+            addFocusSession = AddFocusSession(repository),
+            getFocusSessionsByBookId = GetFocusSessionByBookId(repository),
+            getFocusSessionByDate = GetFocusSessionByDate(repository)
         )
     }
 }
