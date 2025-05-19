@@ -9,4 +9,5 @@ data class BookDetailsState(
     val publisher: String = "",
     val language: String = "",
     val status: Book.BookStatus = Book.BookStatus.TO_READ,
+    val bookImageFilePath: String = "",
 )

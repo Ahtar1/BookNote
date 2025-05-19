@@ -28,7 +28,8 @@ class BookDetailsViewModel @Inject constructor(
                             author = book.author,
                             publisher = book.publisher,
                             language = book.language,
-                            status = book.status
+                            status = book.status,
+                            bookImageFilePath = book.bookImagePath
                         )
                     }
                 }
@@ -36,6 +37,13 @@ class BookDetailsViewModel @Inject constructor(
             is BookDetailsEvent.UpdateBook -> {
                 viewModelScope.launch {
                     bookUseCases.updateBook(event.book)
+                }
+            }
+            is BookDetailsEvent.UpdateBookImage -> {
+                viewModelScope.launch {
+                    _state.value = _state.value.copy(
+                        bookImageFilePath = event.bookImageFilePath
+                    )
                 }
             }
         }

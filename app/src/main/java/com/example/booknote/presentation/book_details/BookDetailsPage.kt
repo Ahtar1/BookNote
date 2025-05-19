@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -97,12 +98,19 @@ fun BookDetailsPage(
         uri?.let {
             val imageFile = saveImageToInternalStorage(context, uri)
             imagePath = imageFile?.absolutePath ?: ""
+
         }
 
     }
 
     LaunchedEffect(Unit){
         viewModel.onEvent(BookDetailsEvent.GetBookDetails(bookId))
+    }
+
+    LaunchedEffect(imagePath) {
+        if (imagePath.isNotEmpty()) {
+            viewModel.onEvent(BookDetailsEvent.UpdateBookImage(imagePath))
+        }
     }
 
     LaunchedEffect(state) {
@@ -152,7 +160,8 @@ fun BookDetailsPage(
             )
         },
     ) {
-        Column(
+
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues = it)
@@ -160,208 +169,229 @@ fun BookDetailsPage(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            if (imagePath != ""){
-                AsyncImage(
-                    model = imagePath,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .height(200.dp)
-                        .width(150.dp)
-                        .padding(top = 10.dp)
-                        .clickable {
-                            showBottomSheet = true
-                        },
-                )
-            } else {
-                Card(
-                    modifier = Modifier
-                        .height(200.dp)
-                        .width(150.dp)
-                        .padding(top = 10.dp)
-                        .clickable {
-                            showBottomSheet = true
-                        },
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardColors(
-                        containerColor = Color.Gray,
-                        contentColor = Color.Gray,
-                        disabledContentColor = Color.Gray,
-                        disabledContainerColor = Color.Gray,
-                    ),
-                ){
-                    Icon(
-                        imageVector = Icons.Default.Image,
-                        contentDescription = "Book Image",
+            item{
+                if (state.bookImageFilePath != ""){
+                    AsyncImage(
+                        model = state.bookImageFilePath,
+                        contentDescription = null,
                         modifier = Modifier
-                            .fillMaxSize()
-                            .wrapContentSize(align = Alignment.Center),
-                        tint = Color.Black
+                            .height(200.dp)
+                            .width(150.dp)
+                            .padding(top = 10.dp)
+                            .clickable {
+                                showBottomSheet = true
+                            },
                     )
-                }
-            }
-
-            Text(
-                text = "Title",
-                modifier = Modifier
-                    .padding(top = 10.dp)
-                    .fillMaxWidth(),
-            )
-
-            OutlinedTextField(
-                value = bookTitleText,
-                onValueChange = { newText ->
-                    bookTitleText = newText
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Black,
-                    unfocusedIndicatorColor = Color.Black,
-                    focusedContainerColor = Transparent,
-                    unfocusedContainerColor = Transparent,
-                ),
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester)
-                    .padding(top = 10.dp),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Next
-                ),
-                keyboardActions = KeyboardActions(
-                    onNext = { focusManager.moveFocus(FocusDirection.Down) }
-                )
-            )
-
-            Text(
-                text = "Author",
-                modifier = Modifier
-                    .padding(top = 10.dp)
-                    .fillMaxWidth(),
-            )
-
-            OutlinedTextField(
-                value = bookAuthor,
-                onValueChange = { newText ->
-                    bookAuthor = newText
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Black,
-                    unfocusedIndicatorColor = Color.Black,
-                    focusedContainerColor = Transparent,
-                    unfocusedContainerColor = Transparent,
-                ),
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 10.dp),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Next
-                ),
-                keyboardActions = KeyboardActions(
-                    onNext = { focusManager.moveFocus(FocusDirection.Down) }
-                )
-            )
-
-            Text(
-                text = "Publisher",
-                modifier = Modifier
-                    .padding(top = 10.dp)
-                    .fillMaxWidth(),
-            )
-
-            OutlinedTextField(
-                value = bookPublisher,
-                onValueChange = { newText ->
-                    bookPublisher = newText
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Black,
-                    unfocusedIndicatorColor = Color.Black,
-                    focusedContainerColor = Transparent,
-                    unfocusedContainerColor = Transparent,
-                ),
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 10.dp),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Next
-                ),
-                keyboardActions = KeyboardActions(
-                    onNext = { focusManager.moveFocus(FocusDirection.Down) }
-                )
-            )
-
-            Text(
-                text = "Language",
-                modifier = Modifier
-                    .padding(top = 10.dp)
-                    .fillMaxWidth(),
-            )
-
-            OutlinedTextField(
-                value = bookLanguage,
-                onValueChange = { newText ->
-                    bookLanguage = newText
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Black,
-                    unfocusedIndicatorColor = Color.Black,
-                    focusedContainerColor = Transparent,
-                    unfocusedContainerColor = Transparent,
-                ),
-                singleLine = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 10.dp),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Next
-                ),
-                keyboardActions = KeyboardActions(
-                    onNext = { focusManager.clearFocus() }
-                )
-            )
-
-            Text(
-                text = "Status",
-                modifier = Modifier
-                    .padding(top = 10.dp)
-                    .fillMaxWidth(),
-            )
-
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                OutlinedTextField(
-                    value = bookStatus.name,
-                    onValueChange = {  },
-                    readOnly = true,
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-                    },
-                    colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
-                )
-
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier
-                        .fillMaxWidth(0.9f)
-                ) {
-                    Book.BookStatus.entries.forEach { status ->
-                        DropdownMenuItem(
-                            text = { Text(status.name) },
-                            onClick = {
-                                bookStatus = status
-                                expanded = false
-                            }
+                } else {
+                    Card(
+                        modifier = Modifier
+                            .height(200.dp)
+                            .width(150.dp)
+                            .padding(top = 10.dp)
+                            .clickable {
+                                showBottomSheet = true
+                            },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardColors(
+                            containerColor = Color.Gray,
+                            contentColor = Color.Gray,
+                            disabledContentColor = Color.Gray,
+                            disabledContainerColor = Color.Gray,
+                        ),
+                    ){
+                        Icon(
+                            imageVector = Icons.Default.Image,
+                            contentDescription = "Book Image",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .wrapContentSize(align = Alignment.Center),
+                            tint = Color.Black
                         )
                     }
                 }
             }
+            item{
+                Text(
+                    text = "Title",
+                    modifier = Modifier
+                        .padding(top = 10.dp)
+                        .fillMaxWidth(),
+                )
+            }
+
+            item {
+                OutlinedTextField(
+                    value = bookTitleText,
+                    onValueChange = { newText ->
+                        bookTitleText = newText
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.Black,
+                        unfocusedIndicatorColor = Color.Black,
+                        focusedContainerColor = Transparent,
+                        unfocusedContainerColor = Transparent,
+                    ),
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester)
+                        .padding(top = 10.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                    )
+                )
+            }
+
+            item {
+                Text(
+                    text = "Author",
+                    modifier = Modifier
+                        .padding(top = 10.dp)
+                        .fillMaxWidth(),
+                )
+            }
+
+            item {
+                OutlinedTextField(
+                    value = bookAuthor,
+                    onValueChange = { newText ->
+                        bookAuthor = newText
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.Black,
+                        unfocusedIndicatorColor = Color.Black,
+                        focusedContainerColor = Transparent,
+                        unfocusedContainerColor = Transparent,
+                    ),
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                    )
+                )
+            }
+
+            item {
+                Text(
+                    text = "Publisher",
+                    modifier = Modifier
+                        .padding(top = 10.dp)
+                        .fillMaxWidth(),
+                )
+            }
+
+            item {
+                OutlinedTextField(
+                    value = bookPublisher,
+                    onValueChange = { newText ->
+                        bookPublisher = newText
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.Black,
+                        unfocusedIndicatorColor = Color.Black,
+                        focusedContainerColor = Transparent,
+                        unfocusedContainerColor = Transparent,
+                    ),
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                    )
+                )
+            }
+
+            item {
+                Text(
+                    text = "Language",
+                    modifier = Modifier
+                        .padding(top = 10.dp)
+                        .fillMaxWidth(),
+                )
+            }
+
+            item {
+                OutlinedTextField(
+                    value = bookLanguage,
+                    onValueChange = { newText ->
+                        bookLanguage = newText
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color.Black,
+                        unfocusedIndicatorColor = Color.Black,
+                        focusedContainerColor = Transparent,
+                        unfocusedContainerColor = Transparent,
+                    ),
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = { focusManager.clearFocus() }
+                    )
+                )
+            }
+
+            item {
+                Text(
+                    text = "Status",
+                    modifier = Modifier
+                        .padding(top = 10.dp)
+                        .fillMaxWidth(),
+                )
+            }
+
+            item {
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    OutlinedTextField(
+                        value = bookStatus.name,
+                        onValueChange = {  },
+                        readOnly = true,
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                        },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                    )
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier
+                            .fillMaxWidth(0.9f)
+                    ) {
+                        Book.BookStatus.entries.forEach { status ->
+                            DropdownMenuItem(
+                                text = { Text(status.name) },
+                                onClick = {
+                                    bookStatus = status
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
         }
         if (showBottomSheet) {
             AddBookImageBottomSheet(

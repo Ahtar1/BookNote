@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Audiotrack
 import androidx.compose.material.icons.rounded.Draw
@@ -176,6 +177,17 @@ fun NotesPage(
                                 modifier = Modifier.size(34.dp),
                                 imageVector = Icons.AutoMirrored.Filled.Sort,
                                 contentDescription = "Sort"
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        IconButton(onClick = {
+                            navController.navigate(
+                                Page.FocusPage.route + "?bookId=${bookId}"
+                            )
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.Timer,
+                                contentDescription = "Check"
                             )
                         }
                         Spacer(modifier = Modifier.width(8.dp))
