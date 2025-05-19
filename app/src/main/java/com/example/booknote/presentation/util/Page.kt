@@ -9,4 +9,6 @@ sealed class Page(val route: String) {
     data object DrawNotePage: Page("draw_note_page")
     data object AddBookPage: Page("add_book_page")
     data object BookDetailsPage: Page("book_details_page")
+    data object FavoriteNotesPage: Page("favorite_notes_page")
+    data object FocusPage: Page("focus_page")
 }
