@@ -33,7 +33,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -120,14 +119,16 @@ fun BooksPage(
                     NavigationDrawerItem(
                         label = { Text("Favori Notlar") },
                         selected = false,
-                        onClick = { /* Handle click */ }
+                        onClick = {
+                            navController.navigate(Page.FavoriteNotesPage.route)
+                        }
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                     Text("Section 2", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleMedium)
                     NavigationDrawerItem(
-                        label = { Text("Karanlık Mod") },
+                        label = { Text("Reminder") },
                         selected = false,
                         badge = {
 
@@ -135,10 +136,11 @@ fun BooksPage(
                         onClick = { /* Handle click */ },
                     )
                     NavigationDrawerItem(
-                        label = { Text("Settings") },
+                        label = { Text("Focus") },
                         selected = false,
-                        icon = { Icon(Icons.Outlined.Settings, contentDescription = null) },
-                        onClick = { /* Handle click */ }
+                        onClick = {
+                            navController.navigate(Page.FocusPage.route)
+                        }
                     )
                     NavigationDrawerItem(
                         label = { Text("Help and feedback") },
