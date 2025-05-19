@@ -108,6 +108,65 @@ fun CalendarPage(
                     calendarState = calendarState
                 )
             }
+
+            item{
+                Text(
+                    text = "Focus Sessions",
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                )
+            }
+
+            if (viewModel.focusSessions.value.isNotEmpty()){
+                items(viewModel.focusSessions.value){ focusSession ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = if (focusSession.bookId == null) "Book not determined" else viewModel.getBookNameById(focusSession.bookId),
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Text(
+                                text = viewModel.formatDuration(focusSession.duration),
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
+                    }
+                }
+            } else{
+                item{
+                    Text(
+                        text = "No focus sessions for this day",
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(),
+                    )
+                }
+            }
+
+            item{
+                Text(
+                    text = "Notes",
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                )
+            }
+
             if (viewModel.notes.value.isEmpty()){
                 item {
                     Text(
@@ -183,11 +242,7 @@ fun CalendarPage(
                     }
                 }
             }
-
-
         }
-
-
     }
 }
 
@@ -200,12 +255,13 @@ fun DayContent(day: Day, dateList: List<LocalDate>, calendarState: CalendarState
             .clickable {
                 calendarState.selectionState.selection = listOf(day.date)
                 viewModel.onEvent(CalendarEvent.GetNotes(day.date))
+                viewModel.onEvent(CalendarEvent.GetFocusSessions(day.date))
             },
         colors = CardDefaults.cardColors(
             containerColor = if( dateList.contains(day.date) ) Color(0xFFdbead5) else Color.White,
         ),
         elevation = CardDefaults.cardElevation(2.dp),
-        border = if(day.isFromCurrentMonth) BorderStroke(1.dp, Color(0xFF686868)) else BorderStroke(1.dp, Color(0xFFdbead5)),
+        border = if(calendarState.selectionState.isDateSelected(day.date)) BorderStroke(2.dp, Color(0xFF686868)) else if(day.isFromCurrentMonth) BorderStroke(1.dp, Color(0xFF686868)) else BorderStroke(1.dp, Color(0xFFdbead5)),
         ){
             Box(
                 modifier = Modifier.fillMaxSize(),

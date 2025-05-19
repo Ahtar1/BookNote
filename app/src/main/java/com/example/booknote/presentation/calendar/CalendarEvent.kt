@@ -4,5 +4,5 @@ import java.time.LocalDate
 
 sealed class CalendarEvent {
     data class GetNotes(val date: LocalDate): CalendarEvent()
-
+    data class GetFocusSessions(val date: LocalDate): CalendarEvent()
 }
