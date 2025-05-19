@@ -89,6 +89,17 @@ fun SaveBottomSheet(
                     .border(1.dp, Color.LightGray )
             ) {
                 items(colorList) { color ->
+                    if(selectedColor.value == color) {
+                        Box(
+                            modifier = Modifier
+                                .size(50.dp)
+                                .background(Color(color))
+                                .border(2.dp, Color.DarkGray)
+                                .clickable {
+                                    selectedColor.value = color
+                                }
+                        )
+                    } else
                     Box(
                         modifier = Modifier
                             .size(50.dp)
@@ -107,6 +118,7 @@ fun SaveBottomSheet(
                 value = title,
                 onValueChange = {title = it},
                 label = { Text("Title") },
+                singleLine = true,
             )
             OutlinedTextField(
                 modifier = Modifier
@@ -121,6 +133,7 @@ fun SaveBottomSheet(
                     }
                 },
                 textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp),
+                singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Number
                 ),
