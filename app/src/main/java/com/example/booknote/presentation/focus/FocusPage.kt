@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Button
@@ -56,12 +57,16 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun FocusPage(
     navController: NavController,
+    bookId: Long,
     viewModel: FocusViewModel = hiltViewModel()
 ){
     var isBottomSheetOpened by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.onEvent(FocusEvent.GetBooks)
+        if (bookId != -1L) {
+            viewModel.onEvent(FocusEvent.SetDefaultSelectedBook(bookId))
+        }
     }
     val state = viewModel.state.collectAsState()
 
@@ -147,19 +152,19 @@ fun FocusPage(
 
                     Button(onClick = {
                         viewModel.onEvent(FocusEvent.StopTimer)
-                        viewModel.onEvent(FocusEvent.Tick)
+                        viewModel.onEvent(FocusEvent.ResetTimer)
                     }) {
                         Text("Sıfırla")
                     }
                 }
             }
-            if (state.value.selectedBook.id != -1L){
+            if (bookId != -1L){
                 Card(
                     modifier = Modifier
                         .height(230.dp)
                         .fillMaxWidth(),
                     onClick = {
-                        navController.navigate(Page.NotesPage.route + "?bookId=${state.value.selectedBook.id}")
+                        navController.navigate(Page.NotesPage.route + "?bookId=${bookId}")
                     }
                 ) {
                     Row(
@@ -229,22 +234,113 @@ fun FocusPage(
                         }
                     }
                 }
+            } else if (state.value.selectedBook.id != -1L){
+                Card(
+                    modifier = Modifier
+                        .height(300.dp)
+                        .fillMaxWidth(),
+                    onClick = {
+                        navController.navigate(Page.NotesPage.route + "?bookId=${state.value.selectedBook.id}")
+                    }
+                ) {
+                    IconButton(
+                        onClick = {
+                            viewModel.onEvent(FocusEvent.DeleteSelectedBook)
+                        },
+                        modifier = Modifier
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = "Delete Selected Book",
+                            modifier = Modifier
+                                .size(24.dp)
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (state.value.selectedBook.bookImagePath.isEmpty()) {
+                            Image(
+                                modifier = Modifier
+                                    .height(200.dp)
+                                    .width(150.dp),
+                                painter = painterResource(id = R.drawable.blue_book),
+                                contentDescription = "Books Grid",)
+                        } else{
+                            AsyncImage(
+                                model = state.value.selectedBook.bookImagePath,
+                                contentDescription = "Book Image",
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .width(150.dp)
+                            )
+                        }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .wrapContentHeight()
+                                .padding(8.dp),
+                            verticalArrangement = Arrangement.SpaceBetween,
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Text(
+                                text = state.value.selectedBook.title,
+                                fontSize = 36.sp,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                            Text(
+                                text = "Author: " +  state.value.selectedBook.author,
+                                fontSize = 16.sp,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                            Text(
+                                text = "Publisher: " + state.value.selectedBook.publisher,
+                                fontSize = 16.sp,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                            Text(
+                                text = "Language: " + state.value.selectedBook.language,
+                                fontSize = 16.sp,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                            if (state.value.selectedBook.status == Book.BookStatus.READING) {
+                                Text(
+                                    text = "Currently Reading",
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                            } else {
+                                Text(
+                                    text = "To Read",
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                            }
+                        }
+                    }
+                }
             }
 
-            ElevatedButton(
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .height(50.dp)
-                    .width(200.dp),
-                onClick = {
-                    isBottomSheetOpened = !isBottomSheetOpened
+            if (bookId == -1L){
+                ElevatedButton(
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                        .height(50.dp)
+                        .width(200.dp),
+                    onClick = {
+                        isBottomSheetOpened = !isBottomSheetOpened
+                    }
+                ) {
+                    Text("Kitap Seç")
+                    Icon(
+                        imageVector = Icons.Filled.MenuBook,
+                        contentDescription = "Choose Book"
+                    )
                 }
-            ) {
-                Text("Kitap Seç")
-                Icon(
-                    imageVector = Icons.Filled.MenuBook,
-                    contentDescription = "Choose Book"
-                )
             }
         }
         if (isBottomSheetOpened) {

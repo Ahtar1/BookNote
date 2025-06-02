@@ -30,7 +30,9 @@ class FocusViewModel @Inject constructor(
         when (event) {
             is FocusEvent.GetBooks -> getBooks()
             is FocusEvent.SelectBook -> selectBook(event.book)
+            is FocusEvent.SetDefaultSelectedBook -> setDefaultSelectedBook(event.bookId)
             is FocusEvent.SaveFocus -> saveFocus(event.focusSession)
+            is FocusEvent.DeleteSelectedBook -> deleteSelectedBook()
             is FocusEvent.StartTimer -> startTimer()
             is FocusEvent.StopTimer -> stopTimer()
             is FocusEvent.Tick -> tick()
@@ -50,6 +52,30 @@ class FocusViewModel @Inject constructor(
         _state.value = _state.value.copy(selectedBook = book)
     }
 
+    private fun setDefaultSelectedBook(bookId: Long) {
+        viewModelScope.launch {
+            bookUseCases.getBooks("", BooksSortOrder.BookTitleDesc).collect {
+                val book = it.find { book -> book.id == bookId }
+                if (book != null) {
+                    _state.value = _state.value.copy(selectedBook = book)
+                }
+            }
+        }
+    }
+
+    private fun deleteSelectedBook() {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(selectedBook = Book(
+                id = -1,
+                title = "",
+                author = "",
+                publisher = "",
+                language = "",
+                status = Book.BookStatus.TO_READ,
+                bookImagePath = "",
+            ))
+        }
+    }
 
     private fun saveFocus(focusSession: FocusSession) {
         viewModelScope.launch {
