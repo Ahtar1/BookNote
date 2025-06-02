@@ -289,7 +289,6 @@ fun NotesPage(
                                 } else {
                                     selectedTags.value += it
                                 }
-                                println("Selected Tags: ${selectedTags.value}")
                                 viewModel.onEvent(NotesEvent.UpdateNotesByTags(selectedTags.value))
                             },
                         colors = CardDefaults.cardColors(

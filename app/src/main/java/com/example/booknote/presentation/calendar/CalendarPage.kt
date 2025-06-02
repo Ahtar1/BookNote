@@ -83,11 +83,6 @@ fun CalendarPage(
             )
         },
     ) {
-        val context = LocalContext.current.applicationContext
-        val player by lazy {
-            NoteAudioPlayer(context)
-        }
-
         val calendarState = rememberSelectableCalendarState(
             initialSelection = listOf(LocalDate.now()),
             initialSelectionMode = SelectionMode.Single

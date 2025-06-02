@@ -218,7 +218,6 @@ fun FavoriteNotesPage(
                                 } else {
                                     selectedTags.value += it
                                 }
-                                println("Selected Tags: ${selectedTags.value}")
                                 viewModel.onEvent(FavoriteNotesEvent.UpdateNotesByTags(selectedTags.value))
                             },
                         colors = CardDefaults.cardColors(
