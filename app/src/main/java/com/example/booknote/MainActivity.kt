@@ -9,10 +9,8 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -21,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.booknote.presentation.add_audio.AddAudioPage
 import com.example.booknote.presentation.add_book.AddBookPage
+import com.example.booknote.presentation.add_reminder.AddReminderPage
 import com.example.booknote.presentation.book_details.BookDetailsPage
 import com.example.booknote.presentation.books.BooksPage
 import com.example.booknote.presentation.calendar.CalendarPage
@@ -28,6 +27,7 @@ import com.example.booknote.presentation.draw_note.DrawNotePage
 import com.example.booknote.presentation.favorite_notes.FavoriteNotesPage
 import com.example.booknote.presentation.focus.FocusPage
 import com.example.booknote.presentation.notes.NotesPage
+import com.example.booknote.presentation.reminder.ReminderPage
 import com.example.booknote.presentation.util.Page
 import com.example.booknote.ui.theme.BookNoteTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -170,10 +170,32 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(
-                            route = Page.FocusPage.route,
-
-                            ){
+                            route = Page.FocusPage.route + "?bookId={bookId}",
+                            arguments = listOf(
+                                navArgument(
+                                    name = "bookId"
+                                ) {
+                                    type = NavType.LongType
+                                    defaultValue = -1
+                                }
+                            )
+                        ){
+                            val bookId = it.arguments?.getLong("bookId") ?: -1L
                             FocusPage(
+                                navController, bookId
+                            )
+                        }
+                        composable(
+                            route = Page.ReminderPage.route,
+                            ){
+                            ReminderPage(
+                                navController
+                            )
+                        }
+                        composable(
+                            route = Page.AddReminderPage.route,
+                            ){
+                            AddReminderPage(
                                 navController
                             )
                         }

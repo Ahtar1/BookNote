@@ -133,7 +133,9 @@ fun BooksPage(
                         badge = {
 
                         },
-                        onClick = { /* Handle click */ },
+                        onClick = {
+                            navController.navigate(Page.ReminderPage.route)
+                        },
                     )
                     NavigationDrawerItem(
                         label = { Text("Focus") },
