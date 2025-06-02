@@ -6,14 +6,16 @@ import androidx.room.TypeConverters
 import com.example.booknote.domain.model.Book
 import com.example.booknote.domain.model.FocusSession
 import com.example.booknote.domain.model.Note
+import com.example.booknote.domain.model.Reminder
 
-@Database(entities = [Book::class, Note::class, FocusSession::class], version = 1)
+@Database(entities = [Book::class, Note::class, FocusSession::class, Reminder::class], version = 1)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract val bookDao: BookDao
     abstract val noteDao: NoteDao
     abstract val focusSessionDao: FocusSessionDao
+    abstract val reminderDao: ReminderDao
 
     companion object {
         const val DATABASE_NAME = "book_note_db"

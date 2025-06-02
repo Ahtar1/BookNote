@@ -1,0 +1,12 @@
+package com.example.booknote.domain.use_case
+
+import com.example.booknote.domain.model.Reminder
+import com.example.booknote.domain.repository.ReminderRepository
+
+class DeleteReminder(
+    private val repository: ReminderRepository
+) {
+    suspend operator fun invoke(reminder: Reminder){
+        repository.delete(reminder)
+    }
+}

@@ -3,19 +3,27 @@ package com.example.booknote.di
 import android.app.Application
 import androidx.room.Room
 import com.example.booknote.data.data_source.AppDatabase
+import com.example.booknote.data.repository.AlarmSchedulerImpl
 import com.example.booknote.data.repository.BookRepositoryImpl
 import com.example.booknote.data.repository.FocusSessionRepositoryImpl
 import com.example.booknote.data.repository.NoteRepositoryImpl
+import com.example.booknote.data.repository.ReminderRepositoryImpl
+import com.example.booknote.domain.repository.AlarmScheduler
 import com.example.booknote.domain.repository.BookRepository
 import com.example.booknote.domain.repository.FocusSessionRepository
 import com.example.booknote.domain.repository.NoteRepository
+import com.example.booknote.domain.repository.ReminderRepository
 import com.example.booknote.domain.use_case.AddBook
 import com.example.booknote.domain.use_case.AddFocusSession
 import com.example.booknote.domain.use_case.AddNote
+import com.example.booknote.domain.use_case.AddReminder
 import com.example.booknote.domain.use_case.BookUseCases
+import com.example.booknote.domain.use_case.CancelReminder
 import com.example.booknote.domain.use_case.DeleteBook
 import com.example.booknote.domain.use_case.DeleteNotes
+import com.example.booknote.domain.use_case.DeleteReminder
 import com.example.booknote.domain.use_case.FocusSessionUseCases
+import com.example.booknote.domain.use_case.GetAllReminders
 import com.example.booknote.domain.use_case.GetBookById
 import com.example.booknote.domain.use_case.GetBooks
 import com.example.booknote.domain.use_case.GetFavoriteNotes
@@ -27,8 +35,11 @@ import com.example.booknote.domain.use_case.GetNotes
 import com.example.booknote.domain.use_case.GetNotesByDate
 import com.example.booknote.domain.use_case.GetTags
 import com.example.booknote.domain.use_case.NoteUseCases
+import com.example.booknote.domain.use_case.ReminderUseCases
+import com.example.booknote.domain.use_case.SetReminder
 import com.example.booknote.domain.use_case.UpdateBook
 import com.example.booknote.domain.use_case.UpdateNote
+import com.example.booknote.domain.use_case.UpdateReminder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -69,6 +80,18 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideAlarmScheduler(app: Application): AlarmScheduler {
+        return AlarmSchedulerImpl(app)
+    }
+
+    @Provides
+    @Singleton
+    fun provideReminderRepository(db: AppDatabase): ReminderRepository {
+        return ReminderRepositoryImpl(db.reminderDao)
+    }
+
+    @Provides
+    @Singleton
     fun provideNoteUseCases(repository: NoteRepository): NoteUseCases {
         return NoteUseCases(
             getNotes = GetNotes(repository),
@@ -102,5 +125,28 @@ object AppModule {
             getFocusSessionsByBookId = GetFocusSessionByBookId(repository),
             getFocusSessionByDate = GetFocusSessionByDate(repository)
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideReminderUseCases(repository: ReminderRepository): ReminderUseCases {
+        return ReminderUseCases(
+            addReminder = AddReminder(repository),
+            getReminders = GetAllReminders(repository),
+            deleteReminder = DeleteReminder(repository),
+            updateReminder = UpdateReminder(repository)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideSetReminder(repository: AlarmScheduler): SetReminder {
+        return SetReminder(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCancelReminder(repository: AlarmScheduler): CancelReminder {
+        return CancelReminder(repository)
     }
 }
