@@ -39,16 +39,19 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -107,12 +110,15 @@ fun BooksPage(
                         .verticalScroll(rememberScrollState())
                 ) {
                     Spacer(Modifier.height(12.dp))
-                    Text("Başlık", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleLarge)
+                    Text("BookNote", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleLarge)
                     HorizontalDivider()
 
-                    Text("Section 1", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleMedium)
                     NavigationDrawerItem(
-                        label = { Text("VIP Ol") },
+                        label = {
+                            Text(
+                            "VIP Ol",
+                            style = MaterialTheme.typography.bodyLarge
+                            ) },
                         selected = false,
                         onClick = { /* Handle click */ }
                     )
@@ -124,9 +130,6 @@ fun BooksPage(
                         }
                     )
 
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                    Text("Section 2", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleMedium)
                     NavigationDrawerItem(
                         label = { Text("Reminder") },
                         selected = false,
@@ -166,6 +169,13 @@ fun BooksPage(
                     title = {
                         Text(text = if (selectionMode) "${selectedBooks.size} Seçildi" else "Kitaplarım")
                     },
+                    colors = TopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        titleContentColor = MaterialTheme.colorScheme.onBackground,
+                        navigationIconContentColor = Color(0xFF000000),
+                        actionIconContentColor = Color(0xFF000000),
+                        scrolledContainerColor = Color(0xFFDFD3C3),
+                    ),
                     navigationIcon = {
                         IconButton(onClick = {
                             scope.launch {
@@ -206,7 +216,7 @@ fun BooksPage(
             },
             floatingActionButton = {
                 FloatingActionButton(
-                    containerColor = Color(0xff54b7de),
+                    containerColor = MaterialTheme.colorScheme.primary,
                     onClick = {
                         navController.navigate(
                             Page.AddBookPage.route +
@@ -216,6 +226,7 @@ fun BooksPage(
                     content = { Icon(Icons.Filled.Add, contentDescription = "Add") },
                 )
             },
+            containerColor = MaterialTheme.colorScheme.background,
         ) { paddingValues ->
             Column(
                 modifier = Modifier
@@ -275,11 +286,20 @@ fun BooksPage(
                                 )
                             }
                         },
+                        colors = SearchBarDefaults.colors(
+                            containerColor = Color(0xFFF8EDE3)
+                        ),
                         content = {}
                     )
                     Spacer(modifier = Modifier.size(4.dp))
                     IconButton(
                         modifier = Modifier.size(34.dp),
+                        colors = IconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.background,
+                            contentColor = MaterialTheme.colorScheme.onBackground,
+                            disabledContentColor = Color(0xFF000000),
+                            disabledContainerColor = Color(0xFFDFD3C3)
+                        ),
                         onClick = {
                             viewModel.onEvent(BooksEvent.OrderButtonClicked)
                         }) {
@@ -379,7 +399,7 @@ fun BooksPage(
                                     Box(
                                         modifier = Modifier
                                             .background(
-                                                color = Color(0xffd5f5e3),
+                                                color = MaterialTheme.colorScheme.tertiary,
                                                 shape = RoundedCornerShape(8.dp)
                                             )
                                             .wrapContentSize()

@@ -56,6 +56,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -134,7 +135,11 @@ fun NotesPage(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = if (selectionMode) "${selectedNotes.size} Seçildi" else state.book.title)
+                    Text(
+                        text = if (selectionMode) "${selectedNotes.size} Seçildi" else state.book.title,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
@@ -144,6 +149,10 @@ fun NotesPage(
                         )
                     }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = Color.Black,
+                ),
                 actions = {
                     if (selectionMode) {
                         IconButton(onClick = {
@@ -583,13 +592,12 @@ fun CustomExpandableFAB(
 
     Card(
         modifier = modifier,
-        elevation = CardDefaults.elevatedCardElevation(4.dp)
+        elevation = CardDefaults.elevatedCardElevation(4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondary
+        )
     ) {
-
-        // parent layout
         Column {
-
-            // The Expandable Sheet layout
             AnimatedVisibility(
                 visible = buttonClicked,
                 enter = expandVertically(tween(1500)) + fadeIn(),
@@ -597,7 +605,6 @@ fun CustomExpandableFAB(
                     animationSpec = tween(1000)
                 )
             ) {
-                // display the items
                 Column(
                     modifier = Modifier
                         .padding(vertical = 20.dp, horizontal = 30.dp)
@@ -625,7 +632,6 @@ fun CustomExpandableFAB(
                 }
             }
 
-            // The FAB main button
             Card(
                 modifier = Modifier.clickable(
                     interactionSource = interactionSource,
@@ -634,7 +640,10 @@ fun CustomExpandableFAB(
                         buttonClicked = !buttonClicked
                     }
                 ),
-                colors = CardDefaults.cardColors(Color(0xff54b7de))) {
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
                 Row(
                     modifier = Modifier.padding(vertical = 20.dp, horizontal = 30.dp)
                 ) {

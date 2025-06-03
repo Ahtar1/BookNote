@@ -23,10 +23,12 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -44,7 +46,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import java.time.DayOfWeek
 import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -155,6 +156,10 @@ fun AddReminderPage(
                         .wrapContentSize()
                         .padding(16.dp),
                     state = timePickerState,
+                    colors = TimePickerDefaults.colors().copy(
+                        timeSelectorUnselectedContainerColor = MaterialTheme.colorScheme.secondary,
+                        timeSelectorSelectedContainerColor = MaterialTheme.colorScheme.primary,
+                    )
                 )
             }
 
@@ -171,7 +176,7 @@ fun AddReminderPage(
                                 .size(48.dp)
                                 .padding(4.dp)
                                 .clip(RoundedCornerShape(percent = 50))
-                                .background(color = if (selectedDaysList.contains(it)) Color.Magenta else Color.LightGray)
+                                .background(color = if (selectedDaysList.contains(it)) MaterialTheme.colorScheme.primary else Color.LightGray)
                                 .clickable {
                                     if (selectedDaysList.contains(it)) {
                                         selectedDaysList -= it

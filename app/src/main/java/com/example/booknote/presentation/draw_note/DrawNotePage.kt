@@ -170,7 +170,7 @@ fun DrawNotePage(
                         .fillMaxHeight(0.8f)
                         .fillMaxWidth(),
                     controller = sketchbookController,
-                    backgroundColor = Color.Black,)
+                    )
                 Spacer(modifier = Modifier.height(2.dp))
                 PaintColorPalette(
                     modifier = Modifier

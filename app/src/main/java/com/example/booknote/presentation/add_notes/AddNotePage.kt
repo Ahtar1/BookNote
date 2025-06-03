@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -49,6 +50,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -279,6 +281,14 @@ fun AddNotePage(
                         onValueChange = { title = it },
                         label = { Text("Title") },
                         maxLines = 1,
+                        colors = TextFieldDefaults.colors().copy(
+                            focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                            unfocusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                            focusedContainerColor = Transparent,
+                            unfocusedContainerColor = Transparent,
+                            focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary
+                        )
                     )
 
                     OutlinedTextField(
@@ -293,6 +303,14 @@ fun AddNotePage(
                                 pageNumber = newText
                             }
                         },
+                        colors = TextFieldDefaults.colors().copy(
+                            focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                            unfocusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                            focusedContainerColor = Transparent,
+                            unfocusedContainerColor = Transparent,
+                            focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary
+                        ),
                         keyboardOptions = KeyboardOptions.Default.copy(
                             imeAction = ImeAction.Next,
                             keyboardType = KeyboardType.Number
@@ -304,7 +322,12 @@ fun AddNotePage(
             item {
                 if (imagePath != ""){
                     val bitmap = BitmapFactory.decodeFile(imagePath)
-                    ZoomableImageWithBlurDynamic(bitmap = bitmap)
+                    ZoomableImageWithBlurDynamic(
+                        bitmap = bitmap,
+                        deleteImageOnClick = {
+                            imagePath = ""
+                        }
+                    )
                 }
             }
 
@@ -340,6 +363,7 @@ fun AddNotePage(
                     state = richTextState,
                     colors = RichTextEditorDefaults.richTextEditorColors(
                         containerColor = Color(viewModel.state.value.note.color),
+                        cursorColor = Color.Black,
                     ),
                 )
             }
@@ -399,7 +423,9 @@ fun EditorControls(
         ControlWrapper(
             selected = boldSelected,
             onChangeClick = { boldSelected = it },
-            onClick = onBoldClick
+            onClick = onBoldClick,
+            selectedColor = MaterialTheme.colorScheme.primary,
+            unselectedColor = MaterialTheme.colorScheme.secondary
         ) {
             Icon(
                 imageVector = Icons.Default.FormatBold,
@@ -410,7 +436,9 @@ fun EditorControls(
         ControlWrapper(
             selected = italicSelected,
             onChangeClick = { italicSelected = it },
-            onClick = onItalicClick
+            onClick = onItalicClick,
+            selectedColor = MaterialTheme.colorScheme.primary,
+            unselectedColor = MaterialTheme.colorScheme.secondary
         ) {
             Icon(
                 imageVector = Icons.Default.FormatItalic,
@@ -421,7 +449,9 @@ fun EditorControls(
         ControlWrapper(
             selected = underlineSelected,
             onChangeClick = { underlineSelected = it },
-            onClick = onUnderlineClick
+            onClick = onUnderlineClick,
+            selectedColor = MaterialTheme.colorScheme.primary,
+            unselectedColor = MaterialTheme.colorScheme.secondary
         ) {
             Icon(
                 imageVector = Icons.Default.FormatUnderlined,
@@ -435,7 +465,9 @@ fun EditorControls(
                 titleSelected = it
                 if (subtitleSelected) subtitleSelected = false
                             },
-            onClick = onTitleClick
+            onClick = onTitleClick,
+            selectedColor = MaterialTheme.colorScheme.primary,
+            unselectedColor = MaterialTheme.colorScheme.secondary
         ) {
             Icon(
                 imageVector = Icons.Default.Title,
@@ -449,7 +481,9 @@ fun EditorControls(
                 subtitleSelected = it
                 if (titleSelected) titleSelected = false
                             },
-            onClick = onSubtitleClick
+            onClick = onSubtitleClick,
+            selectedColor = MaterialTheme.colorScheme.primary,
+            unselectedColor = MaterialTheme.colorScheme.secondary
         ) {
             Icon(
                 imageVector = Icons.Default.FormatSize,
@@ -460,12 +494,14 @@ fun EditorControls(
         ControlWrapper(
             selected = textColorSelected,
             onChangeClick = { textColorSelected = it },
-            onClick = onTextColorClick
+            onClick = onTextColorClick,
+            selectedColor = MaterialTheme.colorScheme.primary,
+            unselectedColor = MaterialTheme.colorScheme.secondary
         ) {
             Icon(
                 imageVector = Icons.Default.FormatColorText,
                 contentDescription = "Text Color Control",
-                tint = MaterialTheme.colorScheme.onPrimary
+                tint = Color.Red
             )
         }
     }
@@ -506,6 +542,7 @@ fun ControlWrapper(
 @Composable
 fun ZoomableImageWithBlurDynamic(
     bitmap: Bitmap,
+    deleteImageOnClick: () -> Unit
 ) {
     var isZoomed by remember { mutableStateOf(false) }
 
@@ -526,6 +563,23 @@ fun ZoomableImageWithBlurDynamic(
                 },
             contentScale = ContentScale.Crop
         )
+
+        IconButton(
+            onClick = {
+                deleteImageOnClick()
+                isZoomed = false
+            },
+            modifier = Modifier
+                .wrapContentSize()
+                .align(Alignment.TopEnd)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Close,
+                contentDescription = "Delete Image",
+                modifier = Modifier.size(24.dp),
+                tint = Color.Black
+            )
+        }
 
         if (isZoomed) {
             Box(

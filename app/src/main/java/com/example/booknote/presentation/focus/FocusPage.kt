@@ -21,15 +21,20 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -82,6 +88,10 @@ fun FocusPage(
                         )
                     }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = Color.Black,
+                ),
                 actions = {
                     IconButton(
                         onClick = {
@@ -108,7 +118,8 @@ fun FocusPage(
                     }
                 }
             )
-        }
+        },
+        contentColor = MaterialTheme.colorScheme.background,
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -134,7 +145,12 @@ fun FocusPage(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Row {
-                    Button({
+                    Button(
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onTertiary
+                        ),
+                        onClick = {
                         if (state.value.isRunning) {
                             viewModel.onEvent(FocusEvent.StopTimer)
                         } else {
@@ -165,7 +181,11 @@ fun FocusPage(
                         .fillMaxWidth(),
                     onClick = {
                         navController.navigate(Page.NotesPage.route + "?bookId=${bookId}")
-                    }
+                    },
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.tertiary,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    )
                 ) {
                     Row(
                         modifier = Modifier
@@ -241,7 +261,11 @@ fun FocusPage(
                         .fillMaxWidth(),
                     onClick = {
                         navController.navigate(Page.NotesPage.route + "?bookId=${state.value.selectedBook.id}")
-                    }
+                    },
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.tertiary,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    )
                 ) {
                     IconButton(
                         onClick = {
@@ -333,7 +357,13 @@ fun FocusPage(
                         .width(200.dp),
                     onClick = {
                         isBottomSheetOpened = !isBottomSheetOpened
-                    }
+                    },
+                    colors = ButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                        disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
+                    )
                 ) {
                     Text("Kitap Seç")
                     Icon(
@@ -350,6 +380,7 @@ fun FocusPage(
                 onDismissRequest = {
                     isBottomSheetOpened = false
                 },
+                containerColor = MaterialTheme.colorScheme.surface,
             ) {
                 if (state.value.books.isEmpty()) {
                     Text(
@@ -377,7 +408,11 @@ fun FocusPage(
                             onClick = {
                                 viewModel.onEvent(FocusEvent.SelectBook(book))
                                 isBottomSheetOpened = false
-                            }
+                            },
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.tertiary,
+                                contentColor = MaterialTheme.colorScheme.onSurface
+                            )
                         ) {
                             Row(
                                 modifier = Modifier

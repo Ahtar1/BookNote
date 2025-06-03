@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,6 +33,7 @@ fun SortBottomSheet(
         modifier = Modifier
             .navigationBarsPadding(),
         onDismissRequest = { onDismissRequest() },
+        containerColor = MaterialTheme.colorScheme.surface,
     ) {
 
         LazyColumn(
