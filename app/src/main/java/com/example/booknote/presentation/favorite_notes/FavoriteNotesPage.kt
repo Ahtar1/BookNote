@@ -55,12 +55,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.booknote.R
 import com.example.booknote.domain.model.Note
 import com.example.booknote.domain.util.NotesSortOrder
 import com.example.booknote.presentation.notes.components.SortBottomSheet
@@ -117,7 +119,7 @@ fun FavoriteNotesPage(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = if (selectionMode) "${selectedNotes.size} Seçildi" else "Favorite Notes")
+                    Text(text = if (selectionMode) "${selectedNotes.size} ${stringResource(R.string.selected)}" else stringResource(R.string.favorite_notes))
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
@@ -193,7 +195,7 @@ fun FavoriteNotesPage(
                     active = false,
                     onActiveChange = { active = it },
                     placeholder = {
-                        Text(text = "Search") },
+                        Text(text = stringResource(R.string.search)) },
                     leadingIcon = {
                         Icon(imageVector = Icons.Filled.Search, contentDescription = "searchIcon") },
                     content = {},)
@@ -256,7 +258,7 @@ fun FavoriteNotesPage(
             if (state.notes.isEmpty()) {
                 Box() {
                     Text(
-                        text = "No Favorite Notes",
+                        text = stringResource(R.string.no_favorite_notes),
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center,
@@ -506,12 +508,12 @@ fun FavoriteNotesPage(
             SortBottomSheet(
                 onDismissRequest = { viewModel.onEvent(FavoriteNotesEvent.DismissBottomSheet) },
                 sortItems = listOf(
-                    ToggleItem(0, "Note Title Ascending", NotesSortOrder.NoteTitleAsc),
-                    ToggleItem(1, "Note Title Descending", NotesSortOrder.NoteTitleDesc),
-                    ToggleItem(2, "Page Ascending", NotesSortOrder.PageAsc),
-                    ToggleItem(3, "Page Descending", NotesSortOrder.PageDesc),
-                    ToggleItem(4, "Date Created Ascending", NotesSortOrder.DateCreatedAsc),
-                    ToggleItem(5, "Date Created Descending", NotesSortOrder.DateCreatedDesc),
+                    ToggleItem(0, stringResource(R.string.note_title_ascending), NotesSortOrder.NoteTitleAsc),
+                    ToggleItem(1, stringResource(R.string.note_title_descending), NotesSortOrder.NoteTitleDesc),
+                    ToggleItem(2, stringResource(R.string.page_ascending), NotesSortOrder.PageAsc),
+                    ToggleItem(3, stringResource(R.string.page_descending), NotesSortOrder.PageDesc),
+                    ToggleItem(4, stringResource(R.string.date_ascending), NotesSortOrder.DateCreatedAsc),
+                    ToggleItem(5, stringResource(R.string.date_descending), NotesSortOrder.DateCreatedDesc),
                 ),
                 initialSelectedItem = selectedBottomSheetItem,
                 onItemSelected = { newItem -> selectedBottomSheetItem = newItem },

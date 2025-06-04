@@ -48,9 +48,19 @@ fun AnimatedTimer(
 fun TimeSegment(hours: Int, minutes: Int, seconds: Int, fontSize: Int) {
     Row {
         TimeDigitGroup(hours, fontSize)
-        Text(":", fontSize = fontSize.sp, modifier = Modifier.alignByBaseline())
+        Text(
+            ":",
+            fontSize = fontSize.sp,
+            modifier = Modifier.alignByBaseline(),
+            color = MaterialTheme.colorScheme.onPrimary
+        )
         TimeDigitGroup(minutes, fontSize)
-        Text(":", fontSize = fontSize.sp, modifier = Modifier.alignByBaseline())
+        Text(
+            ":",
+            fontSize = fontSize.sp,
+            modifier = Modifier.alignByBaseline(),
+            color = MaterialTheme.colorScheme.onPrimary
+        )
         TimeDigitGroup(seconds, fontSize)
     }
 }

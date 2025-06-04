@@ -51,11 +51,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.booknote.R
 import com.example.booknote.domain.model.Book
 import com.example.booknote.presentation.add_book.components.AddBookImageBottomSheet
 import com.example.booknote.presentation.notes.saveImageToInternalStorage
@@ -107,7 +109,7 @@ fun AddBookPage(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add Book") },
+                title = { Text(stringResource(R.string.add_book)) },
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.navigateUp()
@@ -190,7 +192,7 @@ fun AddBookPage(
 
             item {
                 Text(
-                    text = "Title",
+                    text = stringResource(R.string.title),
                     modifier = Modifier
                         .padding(top = 10.dp)
                         .fillMaxWidth(),
@@ -225,7 +227,7 @@ fun AddBookPage(
 
             item {
                 Text(
-                    text = "Author",
+                    text = stringResource(R.string.author),
                     modifier = Modifier
                         .padding(top = 10.dp)
                         .fillMaxWidth(),
@@ -259,7 +261,7 @@ fun AddBookPage(
 
             item {
                 Text(
-                    text = "Publisher",
+                    text = stringResource(R.string.publisher),
                     modifier = Modifier
                         .padding(top = 10.dp)
                         .fillMaxWidth(),
@@ -292,7 +294,7 @@ fun AddBookPage(
             }
             item {
                 Text(
-                    text = "Language",
+                    text = stringResource(R.string.language),
                     modifier = Modifier
                         .padding(top = 10.dp)
                         .fillMaxWidth(),
@@ -326,7 +328,7 @@ fun AddBookPage(
 
             item {
                 Text(
-                    text = "Status",
+                    text = stringResource(R.string.status),
                     modifier = Modifier
                         .padding(top = 10.dp)
                         .fillMaxWidth(),
@@ -340,7 +342,13 @@ fun AddBookPage(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     OutlinedTextField(
-                        value = bookStatus.name,
+                        value = stringResource(
+                            when (bookStatus) {
+                                Book.BookStatus.TO_READ -> R.string.to_read
+                                Book.BookStatus.READING -> R.string.currently_reading
+                                Book.BookStatus.READ -> R.string.read
+                            }
+                        ),
                         onValueChange = {  },
                         readOnly = true,
                         trailingIcon = {
@@ -358,7 +366,15 @@ fun AddBookPage(
                     ) {
                         Book.BookStatus.entries.forEach { status ->
                             DropdownMenuItem(
-                                text = { Text(status.name) },
+                                text = { Text(
+                                    text = stringResource(
+                                        when (status) {
+                                            Book.BookStatus.TO_READ -> R.string.to_read
+                                            Book.BookStatus.READING -> R.string.currently_reading
+                                            Book.BookStatus.READ -> R.string.read
+                                        }
+                                    )
+                                ) },
                                 onClick = {
                                     bookStatus = status
                                     expanded = false

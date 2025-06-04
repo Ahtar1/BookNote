@@ -1,5 +1,6 @@
 package com.example.booknote.presentation.books
 
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -62,8 +63,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -72,6 +77,7 @@ import coil.compose.AsyncImage
 import com.example.booknote.R
 import com.example.booknote.domain.model.Book
 import com.example.booknote.domain.util.BooksSortOrder
+import com.example.booknote.presentation.focus.getCorrectlyOrientedBitmap
 import com.example.booknote.presentation.notes.components.SortBottomSheet
 import com.example.booknote.presentation.notes.components.ToggleItem
 import com.example.booknote.presentation.util.Page
@@ -96,7 +102,7 @@ fun BooksPage(
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
-    var selectedBottomSheetItem by remember { mutableStateOf<ToggleItem?>(ToggleItem(1, "Book Title Ascending", BooksSortOrder.BookTitleAsc),) }
+    var selectedBottomSheetItem by remember { mutableStateOf<ToggleItem?>(ToggleItem(0, "Book Title Ascending", BooksSortOrder.BookTitleAsc),) }
     ModalNavigationDrawer(
         drawerContent = {
             ModalDrawerSheet(
@@ -110,20 +116,20 @@ fun BooksPage(
                         .verticalScroll(rememberScrollState())
                 ) {
                     Spacer(Modifier.height(12.dp))
-                    Text("BookNote", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleLarge)
+                    Text(stringResource(R.string.app_name), modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleLarge)
                     HorizontalDivider()
 
                     NavigationDrawerItem(
                         label = {
                             Text(
-                            "VIP Ol",
-                            style = MaterialTheme.typography.bodyLarge
+                                text = stringResource(R.string.be_vip),
+                                style = MaterialTheme.typography.bodyLarge
                             ) },
                         selected = false,
                         onClick = { /* Handle click */ }
                     )
                     NavigationDrawerItem(
-                        label = { Text("Favori Notlar") },
+                        label = { Text(stringResource(R.string.favorite_notes)) },
                         selected = false,
                         onClick = {
                             navController.navigate(Page.FavoriteNotesPage.route)
@@ -131,7 +137,7 @@ fun BooksPage(
                     )
 
                     NavigationDrawerItem(
-                        label = { Text("Reminder") },
+                        label = { Text(stringResource(R.string.reminder)) },
                         selected = false,
                         badge = {
 
@@ -141,14 +147,19 @@ fun BooksPage(
                         },
                     )
                     NavigationDrawerItem(
-                        label = { Text("Focus") },
+                        label = { Text(stringResource(R.string.focus)) },
                         selected = false,
                         onClick = {
                             navController.navigate(Page.FocusPage.route)
                         }
                     )
                     NavigationDrawerItem(
-                        label = { Text("Help and feedback") },
+                        label = { Text(stringResource(R.string.privacy_policy) ) },
+                        selected = false,
+                        onClick = { /* Handle click */ },
+                    )
+                    NavigationDrawerItem(
+                        label = { Text(stringResource(R.string.help_and_feedback)) },
                         selected = false,
                         icon = { Icon(Icons.AutoMirrored.Outlined.Help, contentDescription = null) },
                         onClick = { /* Handle click */ },
@@ -167,7 +178,7 @@ fun BooksPage(
                     modifier = Modifier
                         .fillMaxWidth(),
                     title = {
-                        Text(text = if (selectionMode) "${selectedBooks.size} Seçildi" else "Kitaplarım")
+                        Text(text = if (selectionMode) "${selectedBooks.size} ${stringResource(R.string.selected)}" else stringResource(R.string.my_books))
                     },
                     colors = TopAppBarColors(
                         containerColor = MaterialTheme.colorScheme.background,
@@ -263,7 +274,7 @@ fun BooksPage(
                         active = false,
                         onActiveChange = { active = it },
                         placeholder = {
-                            Text(text = "Search")
+                            Text(text = stringResource(R.string.search))
                         },
                         leadingIcon = {
                             Icon(imageVector = Icons.Filled.Search, contentDescription = "searchIcon")
@@ -362,12 +373,13 @@ fun BooksPage(
                                         }
                                 ) {
                                     if(book.bookImagePath.isNotEmpty()){
-                                        AsyncImage(
+                                        Image(
+                                            bitmap = getCorrectlyOrientedBitmap(book.bookImagePath)?.asImageBitmap()?:
+                                                BitmapFactory.decodeResource(LocalContext.current.resources, R.drawable.blue_book).asImageBitmap(),
+                                            contentDescription = "Placeholder Image",
                                             modifier = Modifier
-                                                .size(200.dp)
                                                 .padding(12.dp),
-                                            model = book.bookImagePath,
-                                            contentDescription = "Books Grid",
+                                            contentScale = ContentScale.Inside
                                         )
                                     } else
                                         Image(
@@ -430,12 +442,12 @@ fun BooksPage(
                 SortBottomSheet(
                     onDismissRequest = { viewModel.onEvent(BooksEvent.DismissBottomSheet) },
                     sortItems = listOf(
-                        ToggleItem(0, "Book Title Ascending", BooksSortOrder.BookTitleAsc),
-                        ToggleItem(1, "Book Title Descending", BooksSortOrder.BookTitleDesc),
-                        ToggleItem(2, "Author Ascending", BooksSortOrder.AuthorAsc),
-                        ToggleItem(3, "Author Descending", BooksSortOrder.AuthorDesc),
-                        ToggleItem(4, "Language Ascending", BooksSortOrder.LanguageAsc),
-                        ToggleItem(5, "Language Descending", BooksSortOrder.LanguageDesc),
+                        ToggleItem(0, stringResource(R.string.book_title_ascending), BooksSortOrder.BookTitleAsc),
+                        ToggleItem(1, stringResource(R.string.book_title_descending), BooksSortOrder.BookTitleDesc),
+                        ToggleItem(2, stringResource(R.string.author_ascending), BooksSortOrder.AuthorAsc),
+                        ToggleItem(3, stringResource(R.string.author_descending), BooksSortOrder.AuthorDesc),
+                        ToggleItem(4, stringResource(R.string.language_ascending), BooksSortOrder.LanguageAsc),
+                        ToggleItem(5, stringResource(R.string.language_descending), BooksSortOrder.LanguageDesc),
                     ),
                     initialSelectedItem = selectedBottomSheetItem,
                     onItemSelected = { newItem -> selectedBottomSheetItem = newItem },

@@ -22,8 +22,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.booknote.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,7 +56,7 @@ fun AddBookImageBottomSheet(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Select Image",
+                    text = stringResource(R.string.select_image),
                     modifier = Modifier.padding(bottom = 8.dp),
                     color = Color.Black
                 )
@@ -85,7 +87,7 @@ fun AddBookImageBottomSheet(
                             .size(24.dp)
                     )
                     Text(
-                        text = "Camera",
+                        text = stringResource(R.string.camera),
                         modifier = Modifier
                             .fillMaxWidth(),
                         color = Color.Black,
@@ -121,7 +123,7 @@ fun AddBookImageBottomSheet(
                     )
 
                     Text(
-                        text = "Gallery",
+                        text = stringResource(R.string.gallery),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp),

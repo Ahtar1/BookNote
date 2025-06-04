@@ -25,9 +25,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.booknote.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,7 +79,7 @@ fun SaveBottomSheet(
             }
 
             Text(
-                text = "Select a color for the background",
+                text = stringResource(R.string.select_a_color),
                 style = MaterialTheme.typography.bodyMedium
             )
 
@@ -117,7 +119,7 @@ fun SaveBottomSheet(
                     .padding(horizontal = 8.dp),
                 value = title,
                 onValueChange = {title = it},
-                label = { Text("Title") },
+                label = { Text(stringResource(R.string.title)) },
                 singleLine = true,
             )
             OutlinedTextField(
@@ -125,7 +127,7 @@ fun SaveBottomSheet(
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp),
                 maxLines = 1,
-                label = { Text("Page Number") },
+                label = { Text(stringResource(R.string.page)) },
                 value = if (pageNumber == "0" ) "" else pageNumber,
                 onValueChange = { newText ->
                     if (newText.all { it.isDigit() }) {
@@ -145,7 +147,7 @@ fun SaveBottomSheet(
                 onSave(title, pageNumber.toLong(), selectedColor.value)
             }
             ) {
-                Text(text ="Save")
+                Text(text = stringResource(R.string.save))
             }
         }
     }

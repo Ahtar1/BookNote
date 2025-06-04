@@ -41,11 +41,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.booknote.R
 import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,7 +83,7 @@ fun AddReminderPage(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add Reminder") },
+                title = { Text(stringResource(R.string.add_reminder)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
@@ -102,7 +104,7 @@ fun AddReminderPage(
                                     Toast
                                         .makeText(
                                             context,
-                                            "Please allow notification permission",
+                                            context.getString(R.string.allow_notification_permission),
                                             Toast.LENGTH_SHORT
                                         )
                                         .show()
@@ -169,7 +171,15 @@ fun AddReminderPage(
                         .wrapContentSize()
                 ) {
                     items(
-                        listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+                        listOf(
+                            context.getString(R.string.mon),
+                            context.getString(R.string.tue),
+                            context.getString(R.string.wed),
+                            context.getString(R.string.thu),
+                            context.getString(R.string.fri),
+                            context.getString(R.string.sat),
+                            context.getString(R.string.sun)
+                        )
                     ){
                         Box(
                             modifier = Modifier
@@ -204,7 +214,7 @@ fun AddReminderPage(
                         title = it
                     },
                     singleLine = true,
-                    label = { Text("Reminder Title") },
+                    label = { Text(stringResource(R.string.reminder_title)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)

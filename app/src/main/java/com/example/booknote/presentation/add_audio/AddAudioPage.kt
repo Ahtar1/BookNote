@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.booknote.R
 import com.example.booknote.domain.model.Note
 import com.example.booknote.presentation.add_audio.components.SaveBottomSheet
 import com.example.booknote.presentation.add_notes.components.TagsBottomSheet
@@ -139,7 +140,7 @@ fun AddAudioPage(
         ) {
 
             Text(
-                text = "Time: ${timer / 60}:${(timer % 60).toString().padStart(2, '0')}", // Dakika:saniye formatında göster
+                text = "Time: ${timer / 60}:${(timer % 60).toString().padStart(2, '0')}",
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp)
             )
 
@@ -293,7 +294,7 @@ fun AddAudioPage(
                             recorder.stop()
                             viewModel.onEvent(AddAudioEvent.SaveButtonClicked)
                         } else{
-                            Toast.makeText(context, "You haven't recorded any voice yet!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.not_recorded_yet), Toast.LENGTH_SHORT).show()
                         }
                 }) {
                     Icon(

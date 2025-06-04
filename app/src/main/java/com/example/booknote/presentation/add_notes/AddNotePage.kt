@@ -69,6 +69,7 @@ import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -79,6 +80,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.booknote.R
 import com.example.booknote.domain.model.Note
 import com.example.booknote.presentation.add_notes.AddNotesEvent
 import com.example.booknote.presentation.add_notes.AddNotesViewModel
@@ -135,7 +137,7 @@ fun AddNotePage(
                     containerColor = Color(topAppBarColor)
                 ),
                 title = {
-                    Text(text = "Add Note")
+                    Text(text = stringResource(R.string.add_note))
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
@@ -158,7 +160,7 @@ fun AddNotePage(
                     }
                     IconButton(onClick = {
                         if (title.isEmpty() && pageNumber.isEmpty()){
-                            Toast.makeText(context, "Please fill in the title and page number", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.fill_title_and_page), Toast.LENGTH_SHORT).show()
                         } else{
                             viewModel.onEvent(
                                 AddNotesEvent.AddNote(
@@ -195,7 +197,7 @@ fun AddNotePage(
                             onDismissRequest = { dropdownMenuExpanded = false }
                         ) {
                             DropdownMenuItem(
-                                text = { Text("Add Tag") },
+                                text = { Text(stringResource(R.string.add_tag)) },
                                 trailingIcon = {
                                     Icon(
                                         imageVector = Icons.Filled.More,
@@ -279,7 +281,7 @@ fun AddNotePage(
                             .weight(7f),
                         value = title,
                         onValueChange = { title = it },
-                        label = { Text("Title") },
+                        label = { Text(stringResource(R.string.title)) },
                         maxLines = 1,
                         colors = TextFieldDefaults.colors().copy(
                             focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
@@ -296,7 +298,7 @@ fun AddNotePage(
                             .weight(3f)
                             .padding(horizontal = 8.dp),
                         maxLines = 1,
-                        label = { Text("Page") },
+                        label = { Text(stringResource(R.string.page)) },
                         value = pageNumber,
                         onValueChange = { newText ->
                             if (newText.all { it.isDigit() }) {

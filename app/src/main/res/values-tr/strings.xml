@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BookNote</string>
+    <string name="be_vip">VIP Ol</string>
+    <string name="favorite_notes">Favori Notlar</string>
+    <string name="reminder">Hatırlatıcı</string>
+    <string name="focus">Odaklan</string>
+    <string name="help_and_feedback">Yardım / Geri Bildirim</string>
+    <string name="privacy_policy">Gizlilik Politikası</string>
+    <string name="selected">Seçildi</string>
+    <string name="my_books">Kitaplarım</string>
+    <string name="search">Ara</string>
+    <string name="book_title_ascending">Kitap Adı (A-Z)</string>
+    <string name="book_title_descending">Kitap Adı (Z-A)</string>
+    <string name="author_ascending">Yazar (A-Z)</string>
+    <string name="author_descending">Yazar (Z-A)</string>
+    <string name="language_ascending">Dil (A-Z)</string>
+    <string name="language_descending">Dil )Z-A)</string>
+
+    <string name="add_audio">Ses Kaydı Ekle</string>
+    <string name="time">Süre:</string>
+    <string name="not_recorded_yet">Daha ses kaydetmediniz!</string>
+    <string name="select_a_color"> Bir arkaplan rengi seçiniz</string>
+    <string name="title">Başlık</string>
+    <string name="page">Sayfa</string>
+    <string name="save">Kaydet</string>
+
+    <string name="add_book">Kitap ekle</string>
+    <string name="author">Yazar</string>
+    <string name="publisher">Yayımcı</string>
+    <string name="language">Dil</string>
+    <string name="status">Okuma Durumu</string>
+    <string name="select_image">Resim Seç</string>
+    <string name="camera">Kamera ile Çek</string>
+    <string name="gallery">Galeriden Seç</string>
+
+    <string name="add_note">Not Ekle</string>
+    <string name="fill_title_and_page">Başlık ve sayfayı doldurunuz</string>
+    <string name="add_tag">Etiket ekle</string>
+    <string name="add_a_tag">Bir etiket ekle</string>
+
+    <string name="add_reminder">Hatırlatıcı Ekle</string>
+    <string name="allow_notification_permission">Lütfen bildirimlere izin veriniz!</string>
+    <string name="mon">Pzt</string>
+    <string name="tue">Sl</string>
+    <string name="wed">Çrş</string>
+    <string name="thu">Prş</string>
+    <string name="fri">Cm</string>
+    <string name="sat">Cmt</string>
+    <string name="sun">Pz</string>
+    <string name="reminder_title">Hatırlatıcı Başlığı</string>
+
+    <string name="edit_book">Kitabı Güncelle</string>
+    <string name="focus_sessions">Odaklanma Süreleri</string>
+    <string name="undefined_book">Belirtilmemiş kitap</string>
+    <string name="no_focus_session">Bugün hiç odaklanma seansı yapılmadı</string>
+    <string name="notes">Notlar</string>
+    <string name="no_notes">Bugün için not bulunmamakta</string>
+
+    <string name="draw">Çiz</string>
+    <string name="thin">İnce</string>
+    <string name="medium">Orta</string>
+    <string name="thick">Kalın</string>
+    <string name="very_thick">Çok Kalın</string>
+
+    <string name="no_favorite_notes">Favori Not Yok</string>
+
+    <string name="note_title_ascending">Not Başlığı (A-Z)</string>
+    <string name="note_title_descending">Not Başlığı (Z-A)</string>
+    <string name="page_ascending">Sayfa (Artan)</string>
+    <string name="page_descending">Sayfa (Azalan)</string>
+    <string name="date_ascending">Oluşturulma Tarihi (Önce Yeni)</string>
+    <string name="date_descending">Oluşturulma Tarihi (Önce Eski)</string>
+
+    <string name="stop">Durdur</string>
+    <string name="start">Başlat</string>
+    <string name="resume">Devam Et</string>
+    <string name="reset">Sıfırla</string>
+    <string name="currently_reading">Okunuyor</string>
+    <string name="to_read">Okunacak</string>
+    <string name="read">Okundu</string>
+    <string name="select_book">Kitap Seç</string>
+    <string name="no_books">Kitap bulunamadı</string>
+    <string name="note">Not</string>
+    <string name="audio">Ses</string>
+    <string name="add">Ekle</string>
+
+    <string name="reminders">Hatırlatıcılar</string>
+    <string name="no_reminders">Hatırlatıcı yok</string>
+</resources>

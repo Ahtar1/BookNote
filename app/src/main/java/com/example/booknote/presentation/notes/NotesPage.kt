@@ -71,12 +71,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.booknote.R
 import com.example.booknote.domain.model.Note
 import com.example.booknote.domain.util.NotesSortOrder
 import com.example.booknote.presentation.notes.components.SortBottomSheet
@@ -100,6 +103,7 @@ fun NotesPage(
     val state by viewModel.state.collectAsState()
     val scope = rememberCoroutineScope()
     val lazyColumnState = rememberLazyListState()
+    val context = LocalContext.current
 
     var selectionMode by remember { mutableStateOf(false) }
     var searchMode by remember { mutableStateOf(false) }
@@ -136,7 +140,7 @@ fun NotesPage(
             TopAppBar(
                 title = {
                     Text(
-                        text = if (selectionMode) "${selectedNotes.size} Seçildi" else state.book.title,
+                        text = if (selectionMode) "${selectedNotes.size} ${stringResource(R.string.selected)}" else state.book.title,
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 1,
                     )
@@ -218,15 +222,15 @@ fun NotesPage(
             val itemList = listOf(
                 FABItem(
                     icon = Icons.Rounded.TextFormat,
-                    text = "Note"
+                    text = stringResource(R.string.note)
                 ),
                 FABItem(
                     icon = Icons.Rounded.Audiotrack,
-                    text = "Audio"
+                    text = stringResource(R.string.audio)
                 ),
                 FABItem(
                     icon = Icons.Rounded.Draw,
-                    text = "Draw"
+                    text = stringResource(R.string.draw)
                 )
             )
 
@@ -234,13 +238,13 @@ fun NotesPage(
                 items = itemList,
                 onItemClick = { item ->
                     when (item.text) {
-                        "Note" -> navController.navigate(
+                        context.getString(R.string.note) -> navController.navigate(
                             Page.AddNotePage.route + "?bookId=${bookId}"
                         )
-                        "Audio" -> navController.navigate(
+                        context.getString(R.string.audio) -> navController.navigate(
                             Page.AddAudioPage.route + "?bookId=${bookId}"
                         )
-                        "Draw" -> navController.navigate(
+                        context.getString(R.string.draw) -> navController.navigate(
                             Page.DrawNotePage.route + "?bookId=${bookId}"
                         )
                     }
@@ -273,7 +277,7 @@ fun NotesPage(
                     active = false,
                     onActiveChange = { active = it },
                     placeholder = {
-                        Text(text = "Search") },
+                        Text(text = stringResource(R.string.search)) },
                     leadingIcon = {
                         Icon(imageVector = Icons.Filled.Search, contentDescription = "searchIcon") },
                     content = {},)
@@ -552,12 +556,12 @@ fun NotesPage(
             SortBottomSheet(
                 onDismissRequest = { viewModel.onEvent(NotesEvent.DismissBottomSheet) },
                 sortItems = listOf(
-                    ToggleItem(0, "Note Title Ascending", NotesSortOrder.NoteTitleAsc),
-                    ToggleItem(1, "Note Title Descending", NotesSortOrder.NoteTitleDesc),
-                    ToggleItem(2, "Page Ascending", NotesSortOrder.PageAsc),
-                    ToggleItem(3, "Page Descending", NotesSortOrder.PageDesc),
-                    ToggleItem(4, "Date Created Ascending", NotesSortOrder.DateCreatedAsc),
-                    ToggleItem(5, "Date Created Descending", NotesSortOrder.DateCreatedDesc),
+                    ToggleItem(0, stringResource(R.string.note_title_ascending), NotesSortOrder.NoteTitleAsc),
+                    ToggleItem(1, stringResource(R.string.note_title_descending), NotesSortOrder.NoteTitleDesc),
+                    ToggleItem(2, stringResource(R.string.page_ascending), NotesSortOrder.PageAsc),
+                    ToggleItem(3, stringResource(R.string.page_descending), NotesSortOrder.PageDesc),
+                    ToggleItem(4, stringResource(R.string.date_ascending), NotesSortOrder.DateCreatedAsc),
+                    ToggleItem(5, stringResource(R.string.date_descending), NotesSortOrder.DateCreatedDesc),
                 ),
                 initialSelectedItem = selectedBottomSheetItem,
                 onItemSelected = { newItem -> selectedBottomSheetItem = newItem },
@@ -580,7 +584,7 @@ data class FABItem(
 fun CustomExpandableFAB(
     modifier: Modifier = Modifier,
     items: List<FABItem>,
-    fabButton: FABItem = FABItem(icon = Icons.Rounded.Add, text = "Add"),
+    fabButton: FABItem = FABItem(icon = Icons.Rounded.Add, text = stringResource(R.string.add)),
     onItemClick: (FABItem) -> Unit
 ) {
 
@@ -607,7 +611,7 @@ fun CustomExpandableFAB(
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(vertical = 20.dp, horizontal = 30.dp)
+                        .padding(vertical = 20.dp, horizontal = 30.dp),
                 ) {
                     items.forEach { item ->
                         Row(modifier = Modifier
@@ -633,13 +637,13 @@ fun CustomExpandableFAB(
             }
 
             Card(
-                modifier = Modifier.clickable(
+                modifier = Modifier
+                    .clickable(
                     interactionSource = interactionSource,
                     indication = null,
                     onClick = {
                         buttonClicked = !buttonClicked
-                    }
-                ),
+                    }),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primary
                 )

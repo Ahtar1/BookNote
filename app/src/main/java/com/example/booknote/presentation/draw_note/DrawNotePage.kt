@@ -46,11 +46,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.booknote.R
 import com.example.booknote.presentation.add_audio.components.SaveBottomSheet
 import com.example.booknote.presentation.add_notes.components.TagsBottomSheet
 import com.example.booknote.presentation.notes.saveImageToInternalStorage
@@ -116,7 +118,7 @@ fun DrawNotePage(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Draw",
+                        text = stringResource(R.string.draw),
                         style = TextStyle(fontSize = 20.sp)
                     )
                 },
@@ -212,7 +214,7 @@ fun DrawNotePage(
                                     sketchbookController.setPaintStrokeWidth(4f)
                                     expanded = false
                                     selectedLineWeight = 4f },
-                                text = { Text("İnce") },
+                                text = { Text(stringResource(R.string.thin)) },
                                 enabled = selectedLineWeight != 4f,
                                 trailingIcon = {
                                     if (selectedLineWeight == 4f)
@@ -227,7 +229,7 @@ fun DrawNotePage(
                                     sketchbookController.setPaintStrokeWidth(8f)
                                     expanded = false
                                     selectedLineWeight = 8f },
-                                text = { Text("Orta") },
+                                text = { Text(stringResource(R.string.medium)) },
                                 enabled = selectedLineWeight != 8f,
                                 trailingIcon = {
                                     if (selectedLineWeight == 8f)
@@ -242,7 +244,7 @@ fun DrawNotePage(
                                     sketchbookController.setPaintStrokeWidth(12f)
                                     expanded = false
                                     selectedLineWeight = 12f },
-                                text = { Text("Kalın") },
+                                text = { Text(stringResource(R.string.thick)) },
                                 enabled = selectedLineWeight != 12f,
                                 trailingIcon = {
                                     if (selectedLineWeight == 12f)
@@ -257,7 +259,7 @@ fun DrawNotePage(
                                     sketchbookController.setPaintStrokeWidth(16f)
                                     expanded = false
                                     selectedLineWeight = 16f },
-                                text = { Text("Çok Kalın") },
+                                text = { Text(stringResource(R.string.very_thick)) },
                                 enabled = selectedLineWeight != 16f,
                                 trailingIcon = {
                                     if (selectedLineWeight == 16f)

@@ -34,7 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -43,10 +43,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import com.example.booknote.R
 import com.example.booknote.presentation.util.Page
 import com.example.booknote.presentation.util.extension.noRippleClickable
 import com.example.booknote.presentation.util.record.ExoPlayer
-import com.example.booknote.presentation.util.record.NoteAudioPlayer
 import com.mohamedrejeb.richeditor.ui.material3.RichText
 import io.github.boguszpawlowski.composecalendar.CalendarState
 import io.github.boguszpawlowski.composecalendar.SelectableCalendar
@@ -106,7 +106,7 @@ fun CalendarPage(
 
             item{
                 Text(
-                    text = "Focus Sessions",
+                    text = stringResource(R.string.focus_sessions),
                     modifier = Modifier
                         .padding(16.dp)
                         .fillMaxWidth(),
@@ -128,7 +128,7 @@ fun CalendarPage(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = if (focusSession.bookId == null) "Book not determined" else viewModel.getBookNameById(focusSession.bookId),
+                                text = if (focusSession.bookId == null) stringResource(R.string.undefined_book) else viewModel.getBookNameById(focusSession.bookId),
                                 style = MaterialTheme.typography.headlineSmall,
                                 color = MaterialTheme.colorScheme.onSurface,
                             )
@@ -143,7 +143,7 @@ fun CalendarPage(
             } else{
                 item{
                     Text(
-                        text = "No focus sessions for this day",
+                        text = stringResource(R.string.no_focus_session),
                         style = MaterialTheme.typography.bodyLarge,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
@@ -155,7 +155,7 @@ fun CalendarPage(
 
             item{
                 Text(
-                    text = "Notes",
+                    text = stringResource(R.string.notes),
                     modifier = Modifier
                         .padding(16.dp)
                         .fillMaxWidth(),
@@ -165,7 +165,7 @@ fun CalendarPage(
             if (viewModel.notes.value.isEmpty()){
                 item {
                     Text(
-                        text = "No notes for this day",
+                        text = stringResource(R.string.no_notes),
                         style = MaterialTheme.typography.bodyLarge,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
@@ -188,7 +188,7 @@ fun CalendarPage(
                                 }
                             },
                         colors = CardDefaults.cardColors(
-                            containerColor = Color(0xffD8EFD3)
+                            containerColor = Color(note.color)
                         )
                     ) {
                         Row(

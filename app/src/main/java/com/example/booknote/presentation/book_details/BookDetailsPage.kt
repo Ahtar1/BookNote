@@ -48,11 +48,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.booknote.R
 import com.example.booknote.domain.model.Book
 import com.example.booknote.presentation.add_book.components.AddBookImageBottomSheet
 import com.example.booknote.presentation.add_book.createImageUri
@@ -125,7 +127,7 @@ fun BookDetailsPage(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Edit Book") },
+                title = { Text(stringResource(R.string.edit_book)) },
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.navigateUp()
@@ -211,7 +213,7 @@ fun BookDetailsPage(
             }
             item{
                 Text(
-                    text = "Title",
+                    text = stringResource(R.string.title),
                     modifier = Modifier
                         .padding(top = 10.dp)
                         .fillMaxWidth(),
@@ -246,7 +248,7 @@ fun BookDetailsPage(
 
             item {
                 Text(
-                    text = "Author",
+                    text = stringResource(R.string.author),
                     modifier = Modifier
                         .padding(top = 10.dp)
                         .fillMaxWidth(),
@@ -280,7 +282,7 @@ fun BookDetailsPage(
 
             item {
                 Text(
-                    text = "Publisher",
+                    text = stringResource(R.string.publisher),
                     modifier = Modifier
                         .padding(top = 10.dp)
                         .fillMaxWidth(),
@@ -314,7 +316,7 @@ fun BookDetailsPage(
 
             item {
                 Text(
-                    text = "Language",
+                    text = stringResource(R.string.language),
                     modifier = Modifier
                         .padding(top = 10.dp)
                         .fillMaxWidth(),
@@ -348,7 +350,7 @@ fun BookDetailsPage(
 
             item {
                 Text(
-                    text = "Status",
+                    text = stringResource(R.string.status),
                     modifier = Modifier
                         .padding(top = 10.dp)
                         .fillMaxWidth(),
